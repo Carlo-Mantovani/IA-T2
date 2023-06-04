@@ -21,7 +21,7 @@ public class TestaRede {
         // ------------------------ EXEMPLO DE TABULEIRO
         // ------------------------------------------
         // tabuleiro do jogo da velha - Exemplo de teste
-        tabuleiroVelha = new int[][] { { 0, -1, -1 }, // -1: celula livre 1: X 0: O
+        tabuleiroVelha = new int[][] { { -1, -1, -1 }, // -1: celula livre 1: X 0: O
                 { -1, -1, -1 },
                 { -1, -1, -1 } };
 
@@ -58,8 +58,8 @@ public class TestaRede {
         int pesosOculta = oculta + 1; // numero de pesos por neuronio da camada oculta
         int pesosSaida = saida + 1; // numero de pesos por neuronio da camada de saida
         int totalPesos = pesosOculta * oculta + pesosSaida * saida;
-        double[] cromossomo = new double[totalPesos];
-        populacao = new double[populacaoSize][totalPesos];
+        double[] cromossomo = new double[totalPesos + 1];
+        populacao = new double[populacaoSize][totalPesos + 1];
 
         for (int j = 0; j < populacaoSize; j++) {
             for (int i = 0; i < cromossomo.length; i++) {
@@ -68,6 +68,7 @@ public class TestaRede {
                     cromossomo[i] = cromossomo[i] * -1;
                 // System.out.print(cromossomo[i] + " ");
             }
+            cromossomo[cromossomo.length - 1] = 0;
             populacao[j] = cromossomo;
         }
         printPopulation(populacao);
@@ -82,6 +83,10 @@ public class TestaRede {
 
         // Exibe rede neural
         System.out.println("Rede Neural - Pesos: ");
+
+        int state = checkGameOver(tabuleiroVelha);
+        System.out.println("Estado: " + state);
+
         // System.out.println(rn);
 
         // --------------EXEMPLO DE EXECUCAO ----------------------------------------
@@ -196,23 +201,70 @@ public class TestaRede {
 
     private void printPopulation(double[][] population) {
         // for (int i = 0; i < population.length; i++) {
-        //     System.out.println("Cromossomo " + i + ": ");
-        //     for (int j = 0; j < population[i].length; j++) {
-        //         System.out.print(population[i][j] + " ");
+        // System.out.println("Cromossomo " + i + ": ");
+        // for (int j = 0; j < population[i].length; j++) {
+        // System.out.print(population[i][j] + " ");
 
-        //     }
-        //     System.out.println();
+        // }
+        // System.out.println();
         // }
 
-        System.out.println(population[0][0]);
-        System.out.println(population[0][1]);
-        System.out.println(population[0][2]);
-        System.out.println(population[0][3]);
-        System.out.println(population[0][4]);
+        System.out.println(population[0][population[0].length - 1]);
 
         System.out.println(population.length);
         System.out.println(population[0].length);
 
+    }
+
+    private static int checkGameOver(int[][] board) {
+        // Check rows
+        for (int line = 0; line < 3; line++) {
+            if (board[line][0] == board[line][1] && board[line][1] == board[line][2]) {
+                if (board[line][0] == 0) {
+                    return 0; // "O victory"
+                } else if (board[line][0] == 1) {
+                    return 1; // "X victory"
+                }
+            }
+        }
+
+        // Check columns
+        for (int col = 0; col < 3; col++) {
+            if (board[0][col] == board[1][col] && board[1][col] == board[2][col]) {
+                if (board[0][col] == 0) {
+                    return 0; // "O victory"
+                } else if (board[0][col] == 1) {
+                    return 1; // "X victory"
+                }
+            }
+        }
+
+        // Check diagonals
+        if ((board[0][0] == board[1][1] && board[1][1] == board[2][2]) ||
+                (board[0][2] == board[1][1] && board[1][1] == board[2][0])) {
+            if (board[1][1] == 0) {
+                return 0; // "O victory"
+            } else if (board[1][1] == 1) {
+                return 1; // "X victory"
+            }
+        }
+
+        // Check if the game is a draw
+        boolean draw = true;
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                if (board[row][col] == -1) {
+                    draw = false;
+                    break;
+                }
+            }
+        }
+        if (draw) {
+            return 2; // "Not over, but it's a draw"
+        }
+
+        // Game is not over
+        return -1;
     }
 
     public static void main(String args[]) {

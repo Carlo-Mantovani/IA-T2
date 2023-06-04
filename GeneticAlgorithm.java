@@ -15,7 +15,7 @@ public class GeneticAlgorithm {
 
     public double[][] defineNewPopulation(double[][] population) {
 
-        double[][] newPopulation = new double[population.length][population[0].length];
+        double[][] newPopulation = new double[population.length][population[0].length+1];
 
         if (ELITISM) {
             newPopulation[0] = setElite(population);
@@ -24,18 +24,18 @@ public class GeneticAlgorithm {
 
         newPopulation = mutation(newPopulation);
 
-        System.out.println("New population: ");
-        for (int i = 0; i < newPopulation.length; i++) {
-            for (int j = 0; j < newPopulation[0].length; j++) {
-                System.out.print(newPopulation[i][j] + " ");
-            }
-            System.out.println();
-        }
+        // System.out.println("New population: ");
+        // for (int i = 0; i < newPopulation.length; i++) {
+        //     for (int j = 0; j < newPopulation[0].length; j++) {
+        //         System.out.print(newPopulation[i][j] + " ");
+        //     }
+        //     System.out.println();
+        // }
         return newPopulation;
     }
 
     private double[][] crossOver(double[][] population) {
-        double[][] newPopulation = new double[population.length][population[0].length];
+        double[][] newPopulation = new double[population.length][population[0].length+1];
         int index = 1;
         int startIndex = 1;
         if (!ELITISM) {
@@ -77,7 +77,7 @@ public class GeneticAlgorithm {
         double[] child = new double[parent1.length];
 
         for (int i = 0; i < parent1.length; i++) {
-            child[i] = (parent1[1] + parent2[i]) / 2;
+            child[i] = (parent1[i] + parent2[i]) / 2;
         }
         return child;
     }
@@ -86,7 +86,7 @@ public class GeneticAlgorithm {
 
         if (random.nextDouble() <= mutationRate) {
             int randomLine = random.nextInt(population.length);
-            int randomColumn = random.nextInt(population[0].length);
+            int randomColumn = random.nextInt(population[0].length-1);
             population[randomLine][randomColumn] = random.nextDouble(-1, 1);
         }
         return population;
