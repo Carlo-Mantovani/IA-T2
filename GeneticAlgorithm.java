@@ -1,22 +1,20 @@
 import java.util.Random;
 
 public class GeneticAlgorithm {
-    private int POPULATION_SIZE = 100;
+
     private boolean ELITISM = true;
-    private int TOURNAMENT_SELECTION_SIZE = 2;
     private double mutationRate = 0.05;
     private double crossOverRate = 0.95;
     private Random random = new Random();
 
-    public GeneticAlgorithm(int pop, boolean elite, int tournament, double mutation, double crossOver) {
-        this.POPULATION_SIZE = pop;
+    public GeneticAlgorithm(boolean elite, double mutation, double crossOver) {
         this.ELITISM = elite;
-        this.TOURNAMENT_SELECTION_SIZE = tournament;
         this.mutationRate = mutation;
         this.crossOverRate = crossOver;
     }
 
     public double[][] defineNewPopulation(double[][] population) {
+
         double[][] newPopulation = new double[population.length][population[0].length];
 
         if (ELITISM) {
@@ -26,6 +24,13 @@ public class GeneticAlgorithm {
 
         newPopulation = mutation(newPopulation);
 
+        System.out.println("New population: ");
+        for (int i = 0; i < newPopulation.length; i++) {
+            for (int j = 0; j < newPopulation[0].length; j++) {
+                System.out.print(newPopulation[i][j] + " ");
+            }
+            System.out.println();
+        }
         return newPopulation;
     }
 
@@ -78,26 +83,26 @@ public class GeneticAlgorithm {
     }
 
     private double[][] mutation(double[][] population) {
-        double[][] newPopulation = new double[population.length][population[0].length];
+
         if (random.nextDouble() <= mutationRate) {
             int randomLine = random.nextInt(population.length);
             int randomColumn = random.nextInt(population[0].length);
-            newPopulation[randomLine][randomColumn] = random.nextDouble(-1, 1);
+            population[randomLine][randomColumn] = random.nextDouble(-1, 1);
         }
-        return newPopulation;
+        return population;
     }
 
     private double[] setElite(double[][] population) {
 
-        double[] bestCromosome = new double[population[0].length];
+        
         int bestIndex = 0;
         for (int i = 0; i < population.length; i++) {
             if (population[i][population[i].length - 1] > population[bestIndex][population[bestIndex].length - 1]) {
                 bestIndex = i;
             }
         }
-        bestCromosome = population[bestIndex];
-        return bestCromosome;
+        
+        return population[bestIndex];
     }
 
 }
