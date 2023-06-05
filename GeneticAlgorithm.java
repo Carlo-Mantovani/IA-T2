@@ -79,44 +79,47 @@ public class GeneticAlgorithm {
         return parent;
     }
 
+    
+    private double[] getChild(double[] parent1, double[] parent2) {
+        double[] child = new double[parent1.length];
+        
+        for (int i = 0; i < parent1.length-1; i++) {
+            child[i] = (parent1[i] + parent2[i]) / 2;
+        }
+        child[parent1.length - 1] = 0;
+        return child;
+    }
+    
+    private double[][] mutation(double[][] population) {
+        
+        if (random.nextDouble() <= mutationRate) {
+            int randomLine = random.nextInt(population.length);
+            int randomColumn = random.nextInt(population[0].length - 1);
+            population[randomLine][randomColumn] = random.nextDouble(-1,1); 
+            
+        }
+        
+        return population;
+    }
+    
+    private double[] setElite(double[][] population) {
+        
+        int bestIndex = 0;
+        for (int i = 0; i < population.length; i++) {
+           
+            if (population[i][population[i].length - 1] > population[bestIndex][population[bestIndex].length - 1]) {
+                bestIndex = i;
+                
+            }
+        }
+        
+        return population[bestIndex];
+    }
     private void printDoubleArray(double[] array) {
         for (int i = 0; i < array.length; i++) {
             System.out.print(array[i] + " ");
         }
         System.out.println();
     }
-
-    private double[] getChild(double[] parent1, double[] parent2) {
-        double[] child = new double[parent1.length];
-
-        for (int i = 0; i < parent1.length-1; i++) {
-            child[i] = (parent1[i] + parent2[i]) / 2;
-        }
-        return child;
-    }
-
-    private double[][] mutation(double[][] population) {
-
-        if (random.nextDouble() <= mutationRate) {
-            int randomLine = random.nextInt(population.length);
-            int randomColumn = random.nextInt(population[0].length - 1);
-            population[randomLine][randomColumn] = random.nextDouble() * 2 - 1;
-        }
-        return population;
-    }
-
-    private double[] setElite(double[][] population) {
-
-        int bestIndex = 0;
-        for (int i = 0; i < population.length; i++) {
-           
-            if (population[i][population[i].length - 1] > population[bestIndex][population[bestIndex].length - 1]) {
-                bestIndex = i;
-               
-            }
-        }
-
-        return population[bestIndex];
-    }
-
+    
 }

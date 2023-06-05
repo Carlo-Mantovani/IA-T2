@@ -8,17 +8,19 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 
-import javax.swing.text.TableView;
+
 
 public class TestaRede {
-    private double[] tabuleiro;
+    private static double[] tabuleiro;
     private int[][] tabuleiroVelha;
-    private Rede rn;
+    private static Rede rn;
     private double[][] populacao;
     private int populacaoSize = 10;
-    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.05, 0.95);
-    private double [] melhorPesos;
+    private static int totalIterations = 1000;;
+    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.05, 0.9);
+    private static double [] melhorPesos;
 
     public TestaRede() {
         // ------------------------ EXEMPLO DE TABULEIRO
@@ -167,7 +169,7 @@ public class TestaRede {
         // }
     }
 
-    private String symbolConverter(int symbol) {
+    private static String symbolConverter(int symbol) {
         if (symbol == 1) {
             return "X";
         } else if (symbol == 0) {
@@ -177,7 +179,7 @@ public class TestaRede {
         }
     }
 
-    public List<Integer> decodeBoard(int[][] tabuleiroVelha) {
+    private static List<Integer> decodeBoard(int[][] tabuleiroVelha) {
 
         List<Integer> posicoes = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
@@ -189,7 +191,7 @@ public class TestaRede {
         return posicoes;
     }
 
-    public String toString(int[][] tabuleiroVelha) {
+    private static String toString(int[][] tabuleiroVelha) {
         String result = "";
         List<Integer> posicoes = decodeBoard(tabuleiroVelha);
         for (int i = 0; i < posicoes.size(); i++) {
@@ -285,7 +287,7 @@ public class TestaRede {
         }
     }
 
-    private int getMaior(double[] saidaRede) {
+    private static int getMaior(double[] saidaRede) {
         int indexMaior = 0;
         for (int i = 0; i < saidaRede.length; i++) {
             if (saidaRede[i] > saidaRede[indexMaior]) {
@@ -295,14 +297,14 @@ public class TestaRede {
         return indexMaior;
     }
 
-    private boolean checkOccupied(int linha, int coluna, int[][] tabuleiroVelha) {
+    private static boolean checkOccupied(int linha, int coluna, int[][] tabuleiroVelha) {
         if (tabuleiroVelha[linha][coluna] != -1) {
             return true;
         }
         return false;
     }
 
-    private boolean checkGameOver(int[][] board) {
+    private static boolean checkGameOver(int[][] board) {
         if (checkBoardState(board) == -1) {
             return false;
         }
@@ -335,7 +337,7 @@ public class TestaRede {
      
     
 
-    private int[][] resetBoard(){
+    private static int[][] resetBoard(){
         int [][] newBoard = new int[3][3];
         for (int i = 0; i < newBoard.length; i++) {
             for (int j = 0; j < newBoard.length; j++) {
@@ -370,7 +372,7 @@ public class TestaRede {
         int index = 0;
         int indexAptidao = populacao[0].length - 1;
 
-        for (int i = 0; i < 10000000; i++) {
+        for (int i = 0; i < totalIterations; i++) {
            
             // for (int j = 0; j < populacao.length; j++) {
             //     System.out.println("Cromossomo: " + j);
@@ -378,6 +380,7 @@ public class TestaRede {
             // }
 
             if (i % 10000 == 0){
+                System.out.println();
                 System.out.println("Iteracao: " + i);
                 System.out.println("Aptidao: " + aptidao);
             }
@@ -487,8 +490,139 @@ public class TestaRede {
     }
 
     public static void main(String args[]) {
-        TestaRede teste = new TestaRede();
+    
+         
+    
+    Scanner kb = new Scanner(System.in);
+    System.out.print("\nBem-vindo!\n");
+    boolean game = true;
+
+        // menu de opcoes
+        while (true) {
+            System.out.print("\n");
+            System.out.print("|-----------------------------------------------|\n");
+            System.out.print("| Opcao 1 - Treinar Rede Neural                 |\n");
+            System.out.print("| Opcao 2 - Jogar                               |\n");
+            System.out.print("| Opcao 3 - Sair                                |\n");
+            System.out.print("|-----------------------------------------------|\n");
+            System.out.print("Selecione uma opcao: ");
+
+            String opt = kb.nextLine();
+
+            switch (opt) {
+
+                case "1":
+
+                    System.out.print("\n");
+                    System.out.print("Quantidade de iteracoes: ");
+                    totalIterations = kb.nextInt();
+                    kb.nextLine();
+
+                    TestaRede teste = new TestaRede();
+
+                       
+                  
+
+                    break;
+
+
+
+                case "2":
+                    rn.setPesosNaRede(tabuleiro.length, melhorPesos);
+                    boolean jogar = true;
+                    int[][] board = resetBoard();
+                    while (jogar){
+                        
+                        System.out.print("\n");
+                        printBoardPositions(board);
+                        System.out.print("\n");
+                        
+                        
+                       
+                        System.out.print("\n");
+                        System.out.print("Jogada da Rede: ");
+                        
+                        double[] saidaRede = rn.propagacao(tabuleiro);
+                        int indexMaior = getMaior(saidaRede);
+                        if (checkOccupied(indexMaior / 3, indexMaior % 3, board)) {
+                       
+                        System.out.print("\n");
+                        System.out.println(indexMaior / 3);
+                        System.out.println(indexMaior % 3);
+                        System.out.print(board[indexMaior / 3][indexMaior % 3]);
+                        System.out.println("Jogada invalida");
+                        break;
+                    }
+
+                        board[indexMaior / 3][indexMaior % 3] = 1;
+                        if (checkGameOver(board)) {
+                            System.out.print("\n");
+                            System.out.print(toString(board));
+                            System.out.print("\n");
+                            System.out.print(checkBoardState(board));
+                            break;
+                        }
+                        
+                        System.out.print("\n");
+                        System.out.print(toString(board));
+
+                        System.out.print("\n");
+                        System.out.print("Jogador 2, escolha uma posicao: ");
+                        int position = kb.nextInt();
+                        kb.nextLine();
+                        if (checkOccupied(position / 3, position % 3, board)) {
+                            System.out.print("\n");
+                            System.out.print("Posicao ocupada!\n");
+                            break;
+                        }
+                        board[position / 3][position % 3] = 0;
+                        if (checkGameOver(board)) {
+                            System.out.print("\n");
+                            System.out.print(toString(board));
+                            System.out.print("\n");
+                            System.out.print(checkBoardState(board));
+                            break;
+                        }
+                        System.out.print(toString(board));
+                        
+                        
+                       
+                    }
+                  
+
+                    break;
+                    
+                    
+
+                case "3":
+                    System.out.print("\n");
+                    System.out.print("Obrigado por jogar!\n");
+                    System.exit(0);
+                    kb.close();
+                    break;
+
+                default :
+                    System.out.print("\n");
+                    System.out.print("Opcao invalida!\n");
+                    break;
+
+
 
     }
+        }
+    }
 
+    
+
+    private static void printBoardPositions(int[][] board) {
+        for (int i = 0; i < board.length; i++) {
+            System.out.print("|");
+            for (int j = 0; j < board.length; j++) {
+                System.out.print(" " + (i * 3 + j + 1) + " |");
+            }
+            System.out.print("\n");
+        }
+    }
 }
+    
+
