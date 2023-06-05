@@ -21,6 +21,15 @@ public class TestaMinimax
                 else if(tabuleiroVelha[i][j]==1) velha[i][j]='X';
                      else velha[i][j]='O';
     }
+
+    public void setMinMax(int[][] tabuleiroVelha){
+        velha = new char[3][3];
+        for(int i=0; i<3;i++) 
+            for(int j=0; j<3;j++)
+                if(tabuleiroVelha[i][j]==-1) velha[i][j]='#';
+                else if(tabuleiroVelha[i][j]==1) velha[i][j]='X';
+                     else velha[i][j]='O';
+    }
     
     /**
      * Faz a jogada do computador, usando o algoritmo Minimax

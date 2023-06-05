@@ -9,13 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.swing.text.TableView;
+
 public class TestaRede {
     private double[] tabuleiro;
     private int[][] tabuleiroVelha;
     private Rede rn;
     private double[][] populacao;
     private int populacaoSize = 10;
-    private GeneticAlgorithm ga = new GeneticAlgorithm(false, 0.05, 0.95);
+    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.05, 0.95);
 
     public TestaRede() {
         // ------------------------ EXEMPLO DE TABULEIRO
@@ -62,8 +64,9 @@ public class TestaRede {
         populacao = new double[populacaoSize][totalPesos + 1];
 
         for (int j = 0; j < populacaoSize; j++) {
+            cromossomo = new double[totalPesos + 1];
             for (int i = 0; i < cromossomo.length; i++) {
-                cromossomo[i] = gera.nextDouble();
+                cromossomo[i] = gera.nextDouble(-1,1);
                 if (gera.nextBoolean())
                     cromossomo[i] = cromossomo[i] * -1;
                 // System.out.print(cromossomo[i] + " ");
@@ -71,22 +74,23 @@ public class TestaRede {
             cromossomo[cromossomo.length - 1] = 0;
             populacao[j] = cromossomo;
         }
-        printPopulation(populacao);
+        //printPopulation(populacao);
 
         populacao = ga.defineNewPopulation(populacao);
-        printPopulation(populacao);
+        //printPopulation(populacao);
 
         // Setando os pesos na rede
         rn.setPesosNaRede(tabuleiro.length, cromossomo); //
 
-        System.out.println();
+       // System.out.println();
 
         // Exibe rede neural
-        System.out.println("Rede Neural - Pesos: ");
+        //System.out.println("Rede Neural - Pesos: ");
 
-        int state = checkGameOver(tabuleiroVelha);
+        int state = checkBoardState(tabuleiroVelha);
         System.out.println("Estado: " + state);
 
+        gameLoop();
         // System.out.println(rn);
 
         // --------------EXEMPLO DE EXECUCAO ----------------------------------------
@@ -200,23 +204,26 @@ public class TestaRede {
     }
 
     private void printPopulation(double[][] population) {
-        // for (int i = 0; i < population.length; i++) {
-        // System.out.println("Cromossomo " + i + ": ");
-        // for (int j = 0; j < population[i].length; j++) {
-        // System.out.print(population[i][j] + " ");
+        for (int i = 0; i < population.length; i++) {
+        if (i == 1) {
+        System.out.println("Cromossomo " + i + ": ");
+        for (int j = 0; j < population[i].length; j++) {
+        System.out.print(population[i][j] + " ");
 
-        // }
-        // System.out.println();
-        // }
+        }
+    }
+        System.out.println();
+        
+    }
 
-        System.out.println(population[0][population[0].length - 1]);
+        // System.out.println(population[0][population[0].length - 1]);
 
-        System.out.println(population.length);
-        System.out.println(population[0].length);
+        // System.out.println(population.length);
+        // System.out.println(population[0].length);
 
     }
 
-    private static int checkGameOver(int[][] board) {
+    private static int checkBoardState(int[][] board) {
         // Check rows
         for (int line = 0; line < 3; line++) {
             if (board[line][0] == board[line][1] && board[line][1] == board[line][2]) {
@@ -265,6 +272,194 @@ public class TestaRede {
 
         // Game is not over
         return -1;
+    }
+
+    private void setTabuleiro(int[][] tabuleiroVelha) {
+        int k = 0;
+        for (int i = 0; i < tabuleiroVelha.length; i++) {
+            for (int j = 0; j < tabuleiroVelha.length; j++) {
+                tabuleiro[k] = tabuleiroVelha[i][j];
+                k++;
+            }
+        }
+    }
+
+    private int getMaior(double[] saidaRede) {
+        int indexMaior = 0;
+        for (int i = 0; i < saidaRede.length; i++) {
+            if (saidaRede[i] > saidaRede[indexMaior]) {
+                indexMaior = i;
+            }
+        }
+        return indexMaior;
+    }
+
+    private boolean checkOccupied(int linha, int coluna, int[][] tabuleiroVelha) {
+        if (tabuleiroVelha[linha][coluna] != -1) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkGameOver(int[][] board) {
+        if (checkBoardState(board) == -1) {
+            return false;
+        }
+        return true;
+    }
+
+    private double getAptitude(int[][] board, double aptidao, boolean flagPlayer) {
+        int state = checkBoardState(board);
+        if (flagPlayer){
+        if (state == 0) {
+            return -10;
+        } else if (state == 1) {
+            return 10;
+        } else if (state == 2) {
+            return 5;
+        } else if (state == -1) {
+            return 1;
+        }
+    }
+    else{
+        if (state == 0) {
+            return -10;
+      
+        } else if (state == 2) {
+            return 5;
+        } 
+    }
+        return 0;
+    }
+     
+    
+
+    private int[][] resetBoard(){
+        int [][] newBoard = new int[3][3];
+        for (int i = 0; i < newBoard.length; i++) {
+            for (int j = 0; j < newBoard.length; j++) {
+                newBoard[i][j] = -1;
+            }
+        }
+        return newBoard;
+    }
+
+    private int[][] randomPlay(int[][] board){
+        int linha = 0;
+        int coluna = 0;
+        Random random = new Random();
+        while (true) {
+            linha = random.nextInt(3);
+            coluna = random.nextInt(3);
+            if (!checkOccupied(linha, coluna, board)) {
+                break;
+            }
+        }
+        board[linha][coluna] = 0;
+        return board;
+
+    }
+
+    private void gameLoop() {
+        TestaMinimax mini = new TestaMinimax(tabuleiroVelha);
+        Sucessor melhor;
+
+        int[][] board = resetBoard();
+        double aptidao = 0;
+        int index = 0;
+        int indexAptidao = populacao[0].length - 1;
+
+        for (int i = 0; i < 1000000; i++) {
+            System.out.println("Iteracao: " + i);
+            // for (int j = 0; j < populacao.length; j++) {
+            //     System.out.println("Cromossomo: " + j);
+            //     System.out.println(populacao[j][populacao[0].length - 1]);
+            // }
+
+            int lowCount = 0;
+            int highCount = 0;
+            index = 0;
+            for (int j = 0; j < populacao.length; j++) {
+                //System.out.println("Cromosome: " + j);
+                index++;
+                rn.setPesosNaRede(tabuleiro.length, populacao[j]);
+                board = resetBoard();
+                aptidao = 0;
+
+                while (true) {
+                    setTabuleiro(board);
+
+                    double[] saidaRede = rn.propagacao(tabuleiro);
+                    int indexMaior = getMaior(saidaRede);
+
+                    //System.out.println("Jogada da Rede: ");
+                    //System.out.println("Linha: " + indexMaior / 3 + " Coluna: " + indexMaior % 3);
+                    
+                    //System.out.println("Value in line and column" + board[indexMaior / 3][indexMaior % 3] );
+                    if (checkOccupied(indexMaior / 3, indexMaior % 3, board)) {
+                        aptidao -= 1;
+
+                        //System.out.println("Jogada invalida");
+                        break;
+                    }
+
+                    board[indexMaior / 3][indexMaior % 3] = 1;
+                    aptidao += getAptitude(board, aptidao, true);
+
+                    //System.out.println(toString(board));
+
+                    if (checkGameOver(board)) {
+
+                        break;
+                    }
+                    //System.out.println("Jogada do Minimax: ");
+                   // mini.setMinMax(board);
+                    //melhor = mini.joga();
+                    //board[melhor.getLinha()][melhor.getColuna()] = 0;
+                    randomPlay(board);
+                    aptidao += getAptitude(board, aptidao, false);
+                     //System.out.println(toString(board));
+                    if (checkGameOver(board)) {
+
+                        break;
+                    }
+
+                }
+                populacao[j][indexAptidao] = aptidao;
+                
+                System.out.println("Aptidao: " + aptidao);
+               
+                if (aptidao >= 5 ) {
+                  
+                    //System.out.println("Cromossomo: " + j);
+                    //System.out.println("State: " + checkBoardState(board));
+                    highCount++;
+                    //System.out.println(toString(board));
+                }
+                if (aptidao < 5 ){
+                    lowCount++;
+                    }
+                  
+                
+
+                
+               
+
+            }
+
+            System.out.println("Low Count" + lowCount);
+            System.out.println("High Count" + highCount);
+             //System.out.println("Antes: ");
+            //printPopulation(populacao);
+             populacao = ga.defineNewPopulation(populacao);
+            //  for (int j = 0; j < populacao.length; j++) {
+            //      System.out.println("AfterCromossomo: " + j);
+            //      System.out.println(populacao[j][populacao[0].length - 1]);
+            //  }
+            //System.out.println("Depois: ");
+            //printPopulation(populacao);
+
+        }
     }
 
     public static void main(String args[]) {

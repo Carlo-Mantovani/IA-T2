@@ -15,7 +15,7 @@ public class GeneticAlgorithm {
 
     public double[][] defineNewPopulation(double[][] population) {
 
-        double[][] newPopulation = new double[population.length][population[0].length+1];
+        double[][] newPopulation = new double[population.length][population[0].length];
 
         if (ELITISM) {
             newPopulation[0] = setElite(population);
@@ -25,36 +25,41 @@ public class GeneticAlgorithm {
         newPopulation = mutation(newPopulation);
 
         // System.out.println("New population: ");
-        // for (int i = 0; i < newPopulation.length; i++) {
-        //     for (int j = 0; j < newPopulation[0].length; j++) {
-        //         System.out.print(newPopulation[i][j] + " ");
-        //     }
-        //     System.out.println();
+    
+        // for (int j = 0; j < newPopulation[0].length; j++) {
+        // System.out.print(newPopulation[1][j] + " ");
+     
+     
         // }
         return newPopulation;
     }
 
     private double[][] crossOver(double[][] population) {
-        double[][] newPopulation = new double[population.length][population[0].length+1];
+
         int index = 1;
         int startIndex = 1;
         if (!ELITISM) {
             startIndex = 0;
             index = 0;
         }
-        for (int i = startIndex; i < population.length; i++) {
+        for (int i = startIndex; i < population.length-1; i++) {
             if (random.nextDouble() <= crossOverRate) {
                 double[] parent1 = getParents(population);
                 double[] parent2 = getParents(population);
                 double[] child = getChild(parent1, parent2);
-                newPopulation[index] = child;
+
+
+                
+               
+
+                population[index] = child;
                 index++;
             } else {
-                newPopulation[index] = population[i];
+                population[index] = population[i];
                 index++;
             }
         }
-        return newPopulation;
+        return population;
     }
 
     private double[] getParents(double[][] population) {
@@ -63,7 +68,8 @@ public class GeneticAlgorithm {
 
         double[] parent1 = population[random.nextInt(population.length)];
         double[] parent2 = population[random.nextInt(population.length)];
-
+        
+        
         if (parent1[parent1.length - 1] > parent2[parent2.length - 1]) {
             parent = parent1;
         } else {
@@ -73,10 +79,17 @@ public class GeneticAlgorithm {
         return parent;
     }
 
+    private void printDoubleArray(double[] array) {
+        for (int i = 0; i < array.length; i++) {
+            System.out.print(array[i] + " ");
+        }
+        System.out.println();
+    }
+
     private double[] getChild(double[] parent1, double[] parent2) {
         double[] child = new double[parent1.length];
 
-        for (int i = 0; i < parent1.length; i++) {
+        for (int i = 0; i < parent1.length-1; i++) {
             child[i] = (parent1[i] + parent2[i]) / 2;
         }
         return child;
@@ -86,22 +99,23 @@ public class GeneticAlgorithm {
 
         if (random.nextDouble() <= mutationRate) {
             int randomLine = random.nextInt(population.length);
-            int randomColumn = random.nextInt(population[0].length-1);
-            population[randomLine][randomColumn] = random.nextDouble(-1, 1);
+            int randomColumn = random.nextInt(population[0].length - 1);
+            population[randomLine][randomColumn] = random.nextDouble() * 2 - 1;
         }
         return population;
     }
 
     private double[] setElite(double[][] population) {
 
-        
         int bestIndex = 0;
         for (int i = 0; i < population.length; i++) {
+           
             if (population[i][population[i].length - 1] > population[bestIndex][population[bestIndex].length - 1]) {
                 bestIndex = i;
+               
             }
         }
-        
+
         return population[bestIndex];
     }
 
