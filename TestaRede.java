@@ -618,7 +618,7 @@ public class TestaRede {
         for (int i = 0; i < board.length; i++) {
             System.out.print("|");
             for (int j = 0; j < board.length; j++) {
-                System.out.print(" " + (i * 3 + j + 1) + " |");
+                System.out.print(" " + (i * 3 + j ) + " |");
             }
             System.out.print("\n");
         }
