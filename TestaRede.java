@@ -68,8 +68,8 @@ public class TestaRede {
 
         for (int j = 0; j < populacaoSize; j++) {
             cromossomo = new double[totalPesos + 1];
-            for (int i = 0; i < cromossomo.length; i++) {
-                cromossomo[i] = gera.nextDouble(-1,1);
+            for (int i = 0; i < cromossomo.length-1; i++) {
+                cromossomo[i] = gera.nextDouble();
                 if (gera.nextBoolean())
                     cromossomo[i] = cromossomo[i] * -1;
                 // System.out.print(cromossomo[i] + " ");
@@ -79,7 +79,7 @@ public class TestaRede {
         }
         //printPopulation(populacao);
 
-        populacao = ga.defineNewPopulation(populacao);
+        //populacao = ga.defineNewPopulation(populacao);
         //printPopulation(populacao);
 
         // Setando os pesos na rede
@@ -90,8 +90,8 @@ public class TestaRede {
         // Exibe rede neural
         //System.out.println("Rede Neural - Pesos: ");
 
-        int state = checkBoardState(tabuleiroVelha);
-        System.out.println("Estado: " + state);
+        //int state = checkBoardState(tabuleiroVelha);
+        //System.out.println("Estado: " + state);
 
         gameLoop();
         // System.out.println(rn);
@@ -317,11 +317,11 @@ public class TestaRede {
         if (state == 0) {
             return -10;
         } else if (state == 1) {
-            return 10;
+            return 15;
         } else if (state == 2) {
-            return 5;
+            return 8;
         } else if (state == -1) {
-            return 1;
+            return 3;
         }
     }
     else{
