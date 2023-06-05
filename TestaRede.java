@@ -401,6 +401,24 @@ public class TestaRede {
                 while (true) {
                     setTabuleiro(board);
 
+                    //System.out.println("Jogada do Minimax: ");
+                    if (i > 111000000){
+                        mini.setMinMax(board);
+                        melhor = mini.joga();
+                        board[melhor.getLinha()][melhor.getColuna()] = 0;
+                        if ((checkBoardState(board)) == 2){
+                            System.out.println("Minimax Tie");
+                        }
+                    }
+                    else {
+                        randomPlay(board);
+                    }
+                    aptidao += getAptitude(board, aptidao, false);
+                    //System.out.println(toString(board));
+                    if (checkGameOver(board)) {
+                        
+                        break;
+                    }
                     double[] saidaRede = rn.propagacao(tabuleiro);
                     int indexMaior = getMaior(saidaRede);
 
@@ -420,24 +438,6 @@ public class TestaRede {
 
                     //System.out.println(toString(board));
 
-                    if (checkGameOver(board)) {
-
-                        break;
-                    }
-                    //System.out.println("Jogada do Minimax: ");
-                    if (i > 111000000){
-                    mini.setMinMax(board);
-                    melhor = mini.joga();
-                    board[melhor.getLinha()][melhor.getColuna()] = 0;
-                     if ((checkBoardState(board)) == 2){
-                        System.out.println("Minimax Tie");
-                    }
-                }
-                    else {
-                    randomPlay(board);
-                    }
-                    aptidao += getAptitude(board, aptidao, false);
-                     //System.out.println(toString(board));
                     if (checkGameOver(board)) {
 
                         break;
@@ -487,6 +487,11 @@ public class TestaRede {
         }
         melhorPesos = populacao[bestIndex];
         System.out.println("Melhor Aptidao: " + populacao[bestIndex][populacao[0].length - 1]);
+        System.out.println("Melhor Pesos: ");
+        for (int i = 0; i < melhorPesos.length; i++) {
+            System.out.print("Peso " + i + ":");
+            System.out.println(melhorPesos[i]);
+        }
     }
 
     public static void main(String args[]) {
@@ -537,6 +542,27 @@ public class TestaRede {
                         printBoardPositions(board);
                         System.out.print("\n");
                         
+                        System.out.print("\n");
+                        System.out.print(toString(board));
+    
+                        System.out.print("\n");
+                        System.out.print("Jogador 1, escolha uma posicao: ");
+                        int position = kb.nextInt();
+                        kb.nextLine();
+                        if (checkOccupied(position / 3, position % 3, board)) {
+                            System.out.print("\n");
+                            System.out.print("Posicao ocupada!\n");
+                            break;
+                        }
+                        board[position / 3][position % 3] = 0;
+                        System.out.print(toString(board));
+                        if (checkGameOver(board)) {
+                            System.out.print("\n");
+                            System.out.print(toString(board));
+                            System.out.print("\n");
+                            System.out.print(checkBoardState(board));
+                            break;
+                        }
                         
                        
                         System.out.print("\n");
@@ -549,7 +575,7 @@ public class TestaRede {
                         System.out.print("\n");
                         System.out.println(indexMaior / 3);
                         System.out.println(indexMaior % 3);
-                        System.out.print(board[indexMaior / 3][indexMaior % 3]);
+                        System.out.println(board[indexMaior / 3][indexMaior % 3]);
                         System.out.println("Jogada invalida");
                         break;
                     }
@@ -563,26 +589,6 @@ public class TestaRede {
                             break;
                         }
                         
-                        System.out.print("\n");
-                        System.out.print(toString(board));
-
-                        System.out.print("\n");
-                        System.out.print("Jogador 2, escolha uma posicao: ");
-                        int position = kb.nextInt();
-                        kb.nextLine();
-                        if (checkOccupied(position / 3, position % 3, board)) {
-                            System.out.print("\n");
-                            System.out.print("Posicao ocupada!\n");
-                            break;
-                        }
-                        board[position / 3][position % 3] = 0;
-                        if (checkGameOver(board)) {
-                            System.out.print("\n");
-                            System.out.print(toString(board));
-                            System.out.print("\n");
-                            System.out.print(checkBoardState(board));
-                            break;
-                        }
                         System.out.print(toString(board));
                         
                         
