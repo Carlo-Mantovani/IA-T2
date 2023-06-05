@@ -18,6 +18,7 @@ public class TestaRede {
     private double[][] populacao;
     private int populacaoSize = 10;
     private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.05, 0.95);
+    private double [] melhorPesos;
 
     public TestaRede() {
         // ------------------------ EXEMPLO DE TABULEIRO
@@ -369,18 +370,26 @@ public class TestaRede {
         int index = 0;
         int indexAptidao = populacao[0].length - 1;
 
-        for (int i = 0; i < 1000000; i++) {
-            System.out.println("Iteracao: " + i);
+        for (int i = 0; i < 10000000; i++) {
+           
             // for (int j = 0; j < populacao.length; j++) {
             //     System.out.println("Cromossomo: " + j);
             //     System.out.println(populacao[j][populacao[0].length - 1]);
             // }
 
+            if (i % 10000 == 0){
+                System.out.println("Iteracao: " + i);
+                System.out.println("Aptidao: " + aptidao);
+            }
+
             int lowCount = 0;
             int highCount = 0;
             index = 0;
             for (int j = 0; j < populacao.length; j++) {
-                //System.out.println("Cromosome: " + j);
+                if (i % 10000 == 0) {
+                    System.out.println("Cromosome: " + j);
+                    System.out.println("Aptidao: " + aptidao);
+                }
                 index++;
                 rn.setPesosNaRede(tabuleiro.length, populacao[j]);
                 board = resetBoard();
@@ -413,10 +422,17 @@ public class TestaRede {
                         break;
                     }
                     //System.out.println("Jogada do Minimax: ");
-                   // mini.setMinMax(board);
-                    //melhor = mini.joga();
-                    //board[melhor.getLinha()][melhor.getColuna()] = 0;
+                    if (i > 111000000){
+                    mini.setMinMax(board);
+                    melhor = mini.joga();
+                    board[melhor.getLinha()][melhor.getColuna()] = 0;
+                     if ((checkBoardState(board)) == 2){
+                        System.out.println("Minimax Tie");
+                    }
+                }
+                    else {
                     randomPlay(board);
+                    }
                     aptidao += getAptitude(board, aptidao, false);
                      //System.out.println(toString(board));
                     if (checkGameOver(board)) {
@@ -427,7 +443,7 @@ public class TestaRede {
                 }
                 populacao[j][indexAptidao] = aptidao;
                 
-                System.out.println("Aptidao: " + aptidao);
+                //System.out.println("Aptidao: " + aptidao);
                
                 if (aptidao >= 5 ) {
                   
@@ -447,8 +463,8 @@ public class TestaRede {
 
             }
 
-            System.out.println("Low Count" + lowCount);
-            System.out.println("High Count" + highCount);
+            //System.out.println("Low Count" + lowCount);
+            //System.out.println("High Count" + highCount);
              //System.out.println("Antes: ");
             //printPopulation(populacao);
              populacao = ga.defineNewPopulation(populacao);
@@ -460,6 +476,14 @@ public class TestaRede {
             //printPopulation(populacao);
 
         }
+        int bestIndex = 0;
+        for (int i = 0; i < populacao.length; i++) {
+            if (populacao[i][populacao[0].length - 1] > populacao[bestIndex][populacao[0].length - 1]) {
+                bestIndex = i;
+            }
+        }
+        melhorPesos = populacao[bestIndex];
+        System.out.println("Melhor Aptidao: " + populacao[bestIndex][populacao[0].length - 1]);
     }
 
     public static void main(String args[]) {
