@@ -293,9 +293,8 @@ public class TestaRede {
     private static int getMaior(double[] saidaRede) {
         int indexMaior = 0;
         for (int i = 0; i < saidaRede.length; i++) {
-      
-            if (saidaRede[i] > saidaRede[indexMaior]) {
 
+            if (saidaRede[i] > saidaRede[indexMaior]) {
 
                 indexMaior = i;
             }
@@ -365,6 +364,7 @@ public class TestaRede {
         return board;
 
     }
+
     private static void startWithFile(double[] pesos) {
         tabuleiroVelha = new int[][] { { -1, -1, -1 }, // -1: celula livre 1: X 0: O
                 { -1, -1, -1 },
@@ -394,7 +394,6 @@ public class TestaRede {
         rn = new Rede(oculta, saida); // topologia da rede: 9 neurônios na camada oculta e 9 na de saída
         rn.setPesosNaRede(tabuleiro.length, pesos); // seta os pesos da rede
     }
- 
 
     private void gameLoop() {
         TestaMinimax mini = new TestaMinimax(tabuleiroVelha);
@@ -406,21 +405,25 @@ public class TestaRede {
         int indexAptidao = populacao[0].length - 1;
         Random random = new Random();
         int highCount = 0;
+        double minMaxRate = 0;
         for (int i = 0; i < totalIterations; i++) {
 
             // for (int j = 0; j < populacao.length; j++) {
             // System.out.println("Cromossomo: " + j);
             // System.out.println(populacao[j][populacao[0].length - 1]);
             // }
-            
-            if (i % 100000 == 0) {
+
+            if (i % 10000 == 0) {
                 System.out.println();
                 System.out.println("Iteracao: " + i);
                 System.out.println("Aptidao anterior: " + aptidao);
             }
+            if (i % 10000 == 0) {
+                minMaxRate += 0.002;
+            }
 
             int lowCount = 0;
-          
+            boolean flagMiniMax = false;
             index = 0;
             for (int j = 0; j < populacao.length; j++) {
                 // if (i % 100000 == 0) {
@@ -432,12 +435,18 @@ public class TestaRede {
                 board = resetBoard();
                 aptidao = 0;
 
+                if (random.nextDouble(0.001, 1) < minMaxRate) {
+                    flagMiniMax = true;
+                } else {
+                    flagMiniMax = false;
+                }
+
                 while (true) {
                     setTabuleiro(board);
 
                     // System.out.println("Jogada do Minimax: ");
-
-                    if (i % 1000 == 0) {
+                    if (flagMiniMax) {
+                        //System.out.println("Minimax Rate: " + minMaxRate);
                         mini.setMinMax(board);
                         melhor = mini.joga();
                         board[melhor.getLinha()][melhor.getColuna()] = 0;
@@ -485,15 +494,14 @@ public class TestaRede {
 
                 // System.out.println("Aptidao: " + aptidao);
 
-               // if (checkBoardState(board) == 0 || (checkBoardState(board) == 2)) {
+                // if (checkBoardState(board) == 0 || (checkBoardState(board) == 2)) {
 
-                    // System.out.println("Cromossomo: " + j);
-                    // System.out.println("State: " + checkBoardState(board));
-                    //highCount++;
-                 //   System.out.println("Tie or Win");
-                   
-               // }
-             
+                // System.out.println("Cromossomo: " + j);
+                // System.out.println("State: " + checkBoardState(board));
+                // highCount++;
+                // System.out.println("Tie or Win");
+
+                // }
 
             }
 
@@ -526,7 +534,7 @@ public class TestaRede {
             System.out.print("Peso " + i + ":");
             System.out.println(melhorPesos[i]);
         }
-        //System.out.println("Aptidoes acima de 5: " + highCount);
+        // System.out.println("Aptidoes acima de 5: " + highCount);
 
     }
 
@@ -625,9 +633,9 @@ public class TestaRede {
                         if (checkOccupied(indexMaior / 3, indexMaior % 3, board)) {
 
                             System.out.print("\n");
-                            System.out.println(indexMaior / 3);
-                            System.out.println(indexMaior % 3);
-                            System.out.println(board[indexMaior / 3][indexMaior % 3]);
+                            System.out.println("Linha: " + indexMaior / 3);
+                            System.out.println("Coluna: " + indexMaior % 3);
+                            // System.out.println(board[indexMaior / 3][indexMaior % 3]);
                             System.out.println("Jogada invalida");
                             break;
                         }
@@ -641,7 +649,7 @@ public class TestaRede {
                             break;
                         }
 
-                        //System.out.print(toString(board));
+                        // System.out.print(toString(board));
 
                     }
 
