@@ -280,7 +280,7 @@ public class TestaRede {
         return -1;
     }
 
-    private void setTabuleiro(int[][] tabuleiroVelha) {
+    private static void setTabuleiro(int[][] tabuleiroVelha) {
         int k = 0;
         for (int i = 0; i < tabuleiroVelha.length; i++) {
             for (int j = 0; j < tabuleiroVelha.length; j++) {
@@ -293,7 +293,10 @@ public class TestaRede {
     private static int getMaior(double[] saidaRede) {
         int indexMaior = 0;
         for (int i = 0; i < saidaRede.length; i++) {
+      
             if (saidaRede[i] > saidaRede[indexMaior]) {
+
+
                 indexMaior = i;
             }
         }
@@ -320,9 +323,9 @@ public class TestaRede {
             if (state == 0) {
                 return -10;
             } else if (state == 1) {
-                return 15;
+                return 20;
             } else if (state == 2) {
-                return 8;
+                return 10;
             } else if (state == -1) {
                 return 3;
             }
@@ -331,7 +334,7 @@ public class TestaRede {
                 return -10;
 
             } else if (state == 2) {
-                return 5;
+                return 10;
             }
         }
         return 0;
@@ -391,6 +394,7 @@ public class TestaRede {
         rn = new Rede(oculta, saida); // topologia da rede: 9 neurônios na camada oculta e 9 na de saída
         rn.setPesosNaRede(tabuleiro.length, pesos); // seta os pesos da rede
     }
+ 
 
     private void gameLoop() {
         TestaMinimax mini = new TestaMinimax(tabuleiroVelha);
@@ -401,14 +405,14 @@ public class TestaRede {
         int index = 0;
         int indexAptidao = populacao[0].length - 1;
         Random random = new Random();
-
+        int highCount = 0;
         for (int i = 0; i < totalIterations; i++) {
 
             // for (int j = 0; j < populacao.length; j++) {
             // System.out.println("Cromossomo: " + j);
             // System.out.println(populacao[j][populacao[0].length - 1]);
             // }
-
+            
             if (i % 100000 == 0) {
                 System.out.println();
                 System.out.println("Iteracao: " + i);
@@ -416,7 +420,7 @@ public class TestaRede {
             }
 
             int lowCount = 0;
-            int highCount = 0;
+          
             index = 0;
             for (int j = 0; j < populacao.length; j++) {
                 // if (i % 100000 == 0) {
@@ -433,7 +437,7 @@ public class TestaRede {
 
                     // System.out.println("Jogada do Minimax: ");
 
-                    if (i % 10000 == 0) {
+                    if (i % 1000 == 0) {
                         mini.setMinMax(board);
                         melhor = mini.joga();
                         board[melhor.getLinha()][melhor.getColuna()] = 0;
@@ -449,6 +453,7 @@ public class TestaRede {
 
                         break;
                     }
+                    setTabuleiro(board);
                     double[] saidaRede = rn.propagacao(tabuleiro);
                     int indexMaior = getMaior(saidaRede);
 
@@ -480,16 +485,15 @@ public class TestaRede {
 
                 // System.out.println("Aptidao: " + aptidao);
 
-                if (aptidao >= 5) {
+               // if (checkBoardState(board) == 0 || (checkBoardState(board) == 2)) {
 
                     // System.out.println("Cromossomo: " + j);
                     // System.out.println("State: " + checkBoardState(board));
-                    highCount++;
-                    // System.out.println(toString(board));
-                }
-                if (aptidao < 5) {
-                    lowCount++;
-                }
+                    //highCount++;
+                 //   System.out.println("Tie or Win");
+                   
+               // }
+             
 
             }
 
@@ -522,6 +526,8 @@ public class TestaRede {
             System.out.print("Peso " + i + ":");
             System.out.println(melhorPesos[i]);
         }
+        //System.out.println("Aptidoes acima de 5: " + highCount);
+
     }
 
     public static void main(String args[]) {
@@ -613,6 +619,7 @@ public class TestaRede {
                         System.out.print("\n");
                         System.out.print("Jogada da Rede: ");
 
+                        setTabuleiro(board);
                         double[] saidaRede = rn.propagacao(tabuleiro);
                         int indexMaior = getMaior(saidaRede);
                         if (checkOccupied(indexMaior / 3, indexMaior % 3, board)) {
@@ -634,7 +641,7 @@ public class TestaRede {
                             break;
                         }
 
-                        System.out.print(toString(board));
+                        //System.out.print(toString(board));
 
                     }
 
