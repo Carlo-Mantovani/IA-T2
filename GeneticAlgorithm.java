@@ -93,7 +93,7 @@ public class GeneticAlgorithm {
     private double[][] mutation(double[][] population) {
         
         if (random.nextDouble() <= mutationRate) {
-            int randomLine = random.nextInt(population.length);
+            int randomLine = random.nextInt(1, population.length);
             int randomColumn = random.nextInt(population[0].length - 1);
             population[randomLine][randomColumn] = random.nextDouble(-1,1); 
             
