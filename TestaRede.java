@@ -20,9 +20,9 @@ public class TestaRede {
     private static int[][] tabuleiroVelha;
     private static Rede rn;
     private double[][] populacao;
-    private int populacaoSize = 10;
-    private static int totalIterations = 1000;;
-    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.05, 0.9);
+    private int populacaoSize = 50;
+    private static int totalIterations;
+    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.3, 0.7);
     private static double[] melhorPesos;
 
     public TestaRede() {
@@ -316,24 +316,24 @@ public class TestaRede {
         return true;
     }
 
-    private double getAptitude(int[][] board, double aptidao, boolean flagPlayer) {
+    private double getAptitude(int[][] board, boolean flagPlayer) {
         int state = checkBoardState(board);
         if (flagPlayer) {
             if (state == 0) {
-                return -10;
+                return -15;
             } else if (state == 1) {
-                return 20;
+                return 60;
             } else if (state == 2) {
-                return 10;
+                return 40;
             } else if (state == -1) {
-                return 3;
+                return 20;
             }
         } else {
             if (state == 0) {
-                return -10;
+                return -15;
 
             } else if (state == 2) {
-                return 10;
+                return 40;
             }
         }
         return 0;
@@ -363,6 +363,15 @@ public class TestaRede {
         board[linha][coluna] = 0;
         return board;
 
+    }
+    private double getBestAptitude(double[][] populacao){
+        double melhorAptidao = 0;
+        for (int i = 0; i < populacao.length; i++) {
+            if (populacao[i][populacao[i].length - 1] > melhorAptidao) {
+                melhorAptidao = populacao[i][populacao[i].length - 1];
+            }
+        }
+        return melhorAptidao;
     }
 
     private static void startWithFile(double[] pesos) {
@@ -405,6 +414,11 @@ public class TestaRede {
         int indexAptidao = populacao[0].length - 1;
         Random random = new Random();
         int highCount = 0;
+        
+        int printRate = 1000;
+        int medium = (totalIterations / 10)*50;
+        int hard = (totalIterations/10 * 75);
+        int veryHard = (totalIterations /100) * 99;
         double minMaxRate = 0;
         for (int i = 0; i < totalIterations; i++) {
 
@@ -413,16 +427,24 @@ public class TestaRede {
             // System.out.println(populacao[j][populacao[0].length - 1]);
             // }
 
-            if (i % 10000 == 0) {
+            if (i % printRate == 0) {
                 System.out.println();
                 System.out.println("Iteracao: " + i);
-                System.out.println("Aptidao anterior: " + aptidao);
+                System.out.println("Melhor Aptidao anterior: " + getBestAptitude(populacao));
             }
-            if (i % 10000 == 0) {
-                minMaxRate += 0.002;
+            if (i == medium) {
+                minMaxRate = 0.005;
+                printRate = 500;
+            } else if (i == hard) {
+                minMaxRate = 0.01;
+                printRate = 100;
+            } else if (i == veryHard) {
+                minMaxRate = 1;
+                printRate = 10;
             }
+            
 
-            int lowCount = 0;
+            
             boolean flagMiniMax = false;
             index = 0;
             for (int j = 0; j < populacao.length; j++) {
@@ -456,13 +478,16 @@ public class TestaRede {
                     } else {
                         randomPlay(board);
                     }
-                    aptidao += getAptitude(board, aptidao, false);
+                    aptidao += getAptitude(board, false);
                     // System.out.println(toString(board));
                     if (checkGameOver(board)) {
 
                         break;
                     }
+                  
                     setTabuleiro(board);
+              
+
                     double[] saidaRede = rn.propagacao(tabuleiro);
                     int indexMaior = getMaior(saidaRede);
 
@@ -473,14 +498,14 @@ public class TestaRede {
                     // System.out.println("Value in line and column" + board[indexMaior /
                     // 3][indexMaior % 3] );
                     if (checkOccupied(indexMaior / 3, indexMaior % 3, board)) {
-                        aptidao -= 1;
+                        aptidao -= 10;
 
                         // System.out.println("Jogada invalida");
                         break;
                     }
 
                     board[indexMaior / 3][indexMaior % 3] = 1;
-                    aptidao += getAptitude(board, aptidao, true);
+                    aptidao += getAptitude(board, true);
 
                     // System.out.println(toString(board));
 
@@ -630,11 +655,11 @@ public class TestaRede {
                         setTabuleiro(board);
                         double[] saidaRede = rn.propagacao(tabuleiro);
                         int indexMaior = getMaior(saidaRede);
+                        System.out.print("\n");
+                        System.out.println("Linha: " + indexMaior / 3);
+                        System.out.println("Coluna: " + indexMaior % 3);
                         if (checkOccupied(indexMaior / 3, indexMaior % 3, board)) {
 
-                            System.out.print("\n");
-                            System.out.println("Linha: " + indexMaior / 3);
-                            System.out.println("Coluna: " + indexMaior % 3);
                             // System.out.println(board[indexMaior / 3][indexMaior % 3]);
                             System.out.println("Jogada invalida");
                             break;
