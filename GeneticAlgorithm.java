@@ -45,9 +45,9 @@ public class GeneticAlgorithm {
             index = 0;
         }
         for (int i = startIndex; i < population.length-1; i++) {
+            double[] parent1 = getParents(population);
+            double[] parent2 = getParents(population);
             if (random.nextDouble() <= crossOverRate) {
-                double[] parent1 = getParents(population);
-                double[] parent2 = getParents(population);
                 double[] child = getChild(parent1, parent2);
 
 
@@ -57,7 +57,11 @@ public class GeneticAlgorithm {
                 population[index] = child;
                 index++;
             } else {
-                population[index] = population[i];
+               if (parent1[parent1.length - 1] > parent2[parent2.length - 1]) {
+                    population[index] = parent1;
+                } else {
+                    population[index] = parent2;
+                }
                 index++;
             }
         }

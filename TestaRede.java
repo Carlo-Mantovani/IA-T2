@@ -22,7 +22,7 @@ public class TestaRede {
     private double[][] populacao;
     private int populacaoSize = 50;
     private static int totalIterations;
-    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.3, 0.7);
+    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.05, 0.9);
     private static double[] melhorPesos;
 
     public TestaRede() {
@@ -82,94 +82,14 @@ public class TestaRede {
         }
         // printPopulation(populacao);
 
-        // populacao = ga.defineNewPopulation(populacao);
-        // printPopulation(populacao);
 
         // Setando os pesos na rede
-        rn.setPesosNaRede(tabuleiro.length, cromossomo); //
+        //rn.setPesosNaRede(tabuleiro.length, cromossomo); //
 
-        // System.out.println();
-
-        // Exibe rede neural
-        // System.out.println("Rede Neural - Pesos: ");
-
-        // int state = checkBoardState(tabuleiroVelha);
-        // System.out.println("Estado: " + state);
+    
 
         gameLoop();
-        // System.out.println(rn);
-
-        // --------------EXEMPLO DE EXECUCAO ----------------------------------------
-
-        // for (int n = 1; n <= 3; n++) {
-        // System.out.println("\n\n>>>RODADA: " + n);
-        // // Exibe um exemplo de propagação : saida dos neurônios da camada de saída
-        // double[] saidaRede = rn.propagacao(tabuleiro);
-        // System.out.println("Rede Neural - Camada de Saida: Valor de Y");
-        // for (int i = 0; i < saidaRede.length; i++) {
-        // System.out.println("Neuronio " + i + " : " + saidaRede[i]);
-        // }
-
-        // // Define posicao a jogar de acordo com rede
-        // int indMaior = 0;
-        // double saidaMaior = saidaRede[0];
-        // for (int i = 1; i < saidaRede.length; i++) {
-        // if (saidaRede[i] > saidaMaior) {
-        // saidaMaior = saidaRede[i];
-        // indMaior = i;
-        // }
-        // }
-        // int linha = indMaior / 3;
-        // int coluna = indMaior % 3;
-        // System.out.println("Neuronio de maior valor: " + indMaior + " - " +
-        // saidaRede[indMaior]);
-        // System.out.println(">>> Rede escolheu - Linha: " + linha + " Coluna: " +
-        // coluna);
-
-        // if (tabuleiroVelha[linha][coluna] != -1)
-        // System.out.println("Posicao ocupada");
-        // else {
-        // tabuleiroVelha[linha][coluna] = 1;
-
-        // System.out.println("\nTabuleiro apos jogada: ");
-        // for (int i = 0; i < tabuleiroVelha.length; i++) {
-        // for (int j = 0; j < tabuleiroVelha.length; j++) {
-        // System.out.print(tabuleiroVelha[i][j] + "\t");
-        // }
-        // System.out.println();
-        // }
-        // }
-
-        // // -----------------------------------------JOGA MINIMAX
-        // TestaMinimax mini = new TestaMinimax(tabuleiroVelha);
-        // Sucessor melhor = mini.joga();
-
-        // System.out.println(">>> MINIMAX escolheu - Linha: " + melhor.getLinha() + "
-        // Coluna: " + melhor.getColuna());
-
-        // if (tabuleiroVelha[melhor.getLinha()][melhor.getColuna()] != -1)
-        // System.out.println("Posicao ocupada");
-        // else {
-        // tabuleiroVelha[melhor.getLinha()][melhor.getColuna()] = 0;
-
-        // System.out.println("\nTabuleiro apos jogada: ");
-        // for (int i = 0; i < tabuleiroVelha.length; i++) {
-        // for (int j = 0; j < tabuleiroVelha.length; j++) {
-        // System.out.print(tabuleiroVelha[i][j] + "\t");
-        // }
-        // System.out.println();
-        // }
-        // }
-
-        // // tabuleiro de teste - conversao de matriz para vetor
-        // k = 0;
-        // for (int i = 0; i < tabuleiroVelha.length; i++) {
-        // for (int j = 0; j < tabuleiroVelha.length; j++) {
-        // tabuleiro[k] = tabuleiroVelha[i][j];
-        // k++;
-        // }
-        // }
-        // }
+     
     }
 
     private static String symbolConverter(int symbol) {
@@ -316,24 +236,24 @@ public class TestaRede {
         return true;
     }
 
-    private double getAptitude(int[][] board, boolean flagPlayer) {
+    private double getAptitude(int[][] board, boolean flagPlayer, int turn) {
         int state = checkBoardState(board);
         if (flagPlayer) {
             if (state == 0) {
-                return -15;
+                return -50;
             } else if (state == 1) {
-                return 60;
+                return 100;
             } else if (state == 2) {
-                return 40;
+                return 50;
             } else if (state == -1) {
-                return 20;
+                return 10 * turn;
             }
         } else {
             if (state == 0) {
-                return -15;
+                return -50;
 
             } else if (state == 2) {
-                return 40;
+                return 50;
             }
         }
         return 0;
@@ -414,7 +334,7 @@ public class TestaRede {
         int indexAptidao = populacao[0].length - 1;
         Random random = new Random();
         int highCount = 0;
-        
+        int turn = 0;
         int printRate = 1000;
         int medium = (totalIterations / 10)*50;
         int hard = (totalIterations/10 * 75);
@@ -456,7 +376,7 @@ public class TestaRede {
                 rn.setPesosNaRede(tabuleiro.length, populacao[j]);
                 board = resetBoard();
                 aptidao = 0;
-
+                turn = 0;
                 if (random.nextDouble(0.001, 1) < minMaxRate) {
                     flagMiniMax = true;
                 } else {
@@ -478,7 +398,8 @@ public class TestaRede {
                     } else {
                         randomPlay(board);
                     }
-                    aptidao += getAptitude(board, false);
+                    turn++;
+                    aptidao += getAptitude(board, false, turn);
                     // System.out.println(toString(board));
                     if (checkGameOver(board)) {
 
@@ -498,14 +419,14 @@ public class TestaRede {
                     // System.out.println("Value in line and column" + board[indexMaior /
                     // 3][indexMaior % 3] );
                     if (checkOccupied(indexMaior / 3, indexMaior % 3, board)) {
-                        aptidao -= 10;
+                        aptidao -= 15;
 
                         // System.out.println("Jogada invalida");
                         break;
                     }
-
+                    turn++;
                     board[indexMaior / 3][indexMaior % 3] = 1;
-                    aptidao += getAptitude(board, true);
+                    aptidao += getAptitude(board, true, turn);
 
                     // System.out.println(toString(board));
 
