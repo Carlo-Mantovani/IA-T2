@@ -24,15 +24,6 @@ public class GeneticAlgorithm {
 
         newPopulation = mutation(newPopulation);
 
-       
-
-        // System.out.println("New population: ");
-    
-        // for (int j = 0; j < newPopulation[0].length; j++) {
-        // System.out.print(newPopulation[1][j] + " ");
-     
-     
-        // }
         return newPopulation;
     }
 
@@ -49,10 +40,6 @@ public class GeneticAlgorithm {
             double[] parent2 = getParents(population);
             if (random.nextDouble() <= crossOverRate) {
                 double[] child = getChild(parent1, parent2);
-
-
-                
-               
 
                 population[index] = child;
                 index++;
@@ -123,11 +110,6 @@ public class GeneticAlgorithm {
         
         return population[bestIndex];
     }
-    private void printDoubleArray(double[] array) {
-        for (int i = 0; i < array.length; i++) {
-            System.out.print(array[i] + " ");
-        }
-        System.out.println();
-    }
+
     
 }

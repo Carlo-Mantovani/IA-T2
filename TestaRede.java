@@ -20,7 +20,7 @@ public class TestaRede {
     private static int[][] tabuleiroVelha;
     private static Rede rn;
     private double[][] populacao;
-    private int populacaoSize = 50;
+    private int populacaoSize = 30;
     private static int totalIterations;
     private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.1, 0.9);
     private static double[] melhorPesos;
@@ -328,10 +328,8 @@ public class TestaRede {
 
         int[][] board = resetBoard();
         double aptidao = 0;
-        int index = 0;
         int indexAptidao = populacao[0].length - 1;
         Random random = new Random();
-        int highCount = 0;
         int turn = 0;
         int printRate = 1000;
         int medium = (totalIterations / 100) * 50;
@@ -339,11 +337,6 @@ public class TestaRede {
         int veryHard = (totalIterations / 1000) * 999;
         double minMaxRate = 0;
         for (int i = 0; i < totalIterations; i++) {
-
-            // for (int j = 0; j < populacao.length; j++) {
-            // System.out.println("Cromossomo: " + j);
-            // System.out.println(populacao[j][populacao[0].length - 1]);
-            // }
 
             if (i % printRate == 0) {
                 System.out.println();
@@ -361,34 +354,28 @@ public class TestaRede {
             } else if (i == veryHard) {
                 System.out.println("Very Hard");
 
-                minMaxRate = 0.01;
+                minMaxRate = 1;
                 printRate = 10;
             }
 
             boolean flagMiniMax = false;
-            index = 0;
+
             for (int j = 0; j < populacao.length; j++) {
-                // if (i % 100000 == 0) {
-                // System.out.println("Cromosome: " + j);
-                // //System.out.println("Aptidao: " + aptidao);
-                // }
-                index++;
+
                 rn.setPesosNaRede(tabuleiro.length, populacao[j]);
                 board = resetBoard();
                 aptidao = 0;
                 turn = 0;
-                if (random.nextDouble(0.001, 1) < minMaxRate) {
-                    flagMiniMax = true;
-                } else {
-                    flagMiniMax = false;
-                }
+                //if (random.nextDouble(0.001, 1) < minMaxRate) {
+                //    flagMiniMax = true;
+                //} else {
+                //    flagMiniMax = false;
+                //}
 
                 while (true) {
                     setTabuleiro(board);
 
-                    // System.out.println("Jogada do Minimax: ");
-                    if (flagMiniMax) {
-                        // System.out.println("Minimax Rate: " + minMaxRate);
+                    if (random.nextDouble(0.001, 1) < minMaxRate) {
                         mini.setMinMax(board);
                         melhor = mini.joga();
                         board[melhor.getLinha()][melhor.getColuna()] = 0;
@@ -400,7 +387,7 @@ public class TestaRede {
                     }
                     turn++;
                     aptidao += getAptitude(board, false, turn);
-                    // System.out.println(toString(board));
+
                     if (checkGameOver(board)) {
 
                         break;
@@ -411,23 +398,14 @@ public class TestaRede {
                     double[] saidaRede = rn.propagacao(tabuleiro);
                     int indexMaior = getMaior(saidaRede);
 
-                    // System.out.println("Jogada da Rede: ");
-                    // System.out.println("Linha: " + indexMaior / 3 + " Coluna: " + indexMaior %
-                    // 3);
-
-                    // System.out.println("Value in line and column" + board[indexMaior /
-                    // 3][indexMaior % 3] );
                     if (checkOccupied(indexMaior / 3, indexMaior % 3, board)) {
                         aptidao -= 15;
 
-                        // System.out.println("Jogada invalida");
                         break;
                     }
                     turn++;
                     board[indexMaior / 3][indexMaior % 3] = 1;
                     aptidao += getAptitude(board, true, turn);
-
-                    // System.out.println(toString(board));
 
                     if (checkGameOver(board)) {
 
@@ -437,33 +415,12 @@ public class TestaRede {
                 }
                 populacao[j][indexAptidao] = aptidao;
 
-                // System.out.println("Aptidao: " + aptidao);
-
-                // if (checkBoardState(board) == 0 || (checkBoardState(board) == 2)) {
-
-                // System.out.println("Cromossomo: " + j);
-                // System.out.println("State: " + checkBoardState(board));
-                // highCount++;
-                // System.out.println("Tie or Win");
-
-                // }
-
             }
 
-            // System.out.println("Low Count" + lowCount);
-            // System.out.println("High Count" + highCount);
-            // System.out.println("Antes: ");
-            // printPopulation(populacao);
             if (i == totalIterations - 1) {
                 break;
             }
             populacao = ga.defineNewPopulation(populacao);
-            // for (int j = 0; j < populacao.length; j++) {
-            // System.out.println("AfterCromossomo: " + j);
-            // System.out.println(populacao[j][populacao[0].length - 1]);
-            // }
-            // System.out.println("Depois: ");
-            // printPopulation(populacao);
 
         }
         int bestIndex = 0;
@@ -487,8 +444,7 @@ public class TestaRede {
 
         Scanner kb = new Scanner(System.in);
         System.out.print("\nBem-vindo!\n");
-        boolean game = true;
-
+      
         // menu de opcoes
         while (true) {
             System.out.print("\n");
