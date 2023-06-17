@@ -22,7 +22,7 @@ public class TestaRede {
     private double[][] populacao;
     private int populacaoSize = 50;
     private static int totalIterations;
-    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.05, 0.9);
+    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.1, 0.9);
     private static double[] melhorPesos;
 
     public TestaRede() {
@@ -82,14 +82,11 @@ public class TestaRede {
         }
         // printPopulation(populacao);
 
-
         // Setando os pesos na rede
-        //rn.setPesosNaRede(tabuleiro.length, cromossomo); //
-
-    
+        // rn.setPesosNaRede(tabuleiro.length, cromossomo); //
 
         gameLoop();
-     
+
     }
 
     private static String symbolConverter(int symbol) {
@@ -284,7 +281,8 @@ public class TestaRede {
         return board;
 
     }
-    private double getBestAptitude(double[][] populacao){
+
+    private double getBestAptitude(double[][] populacao) {
         double melhorAptidao = 0;
         for (int i = 0; i < populacao.length; i++) {
             if (populacao[i][populacao[i].length - 1] > melhorAptidao) {
@@ -336,9 +334,9 @@ public class TestaRede {
         int highCount = 0;
         int turn = 0;
         int printRate = 1000;
-        int medium = (totalIterations / 10)*50;
-        int hard = (totalIterations/10 * 75);
-        int veryHard = (totalIterations /100) * 99;
+        int medium = (totalIterations / 100) * 50;
+        int hard = (totalIterations / 100) * 75;
+        int veryHard = (totalIterations / 1000) * 999;
         double minMaxRate = 0;
         for (int i = 0; i < totalIterations; i++) {
 
@@ -353,18 +351,20 @@ public class TestaRede {
                 System.out.println("Melhor Aptidao anterior: " + getBestAptitude(populacao));
             }
             if (i == medium) {
+                System.out.println("Medium");
                 minMaxRate = 0.005;
                 printRate = 500;
             } else if (i == hard) {
+                System.out.println("Hard");
                 minMaxRate = 0.01;
                 printRate = 100;
             } else if (i == veryHard) {
-                minMaxRate = 1;
+                System.out.println("Very Hard");
+
+                minMaxRate = 0.01;
                 printRate = 10;
             }
-            
 
-            
             boolean flagMiniMax = false;
             index = 0;
             for (int j = 0; j < populacao.length; j++) {
@@ -388,7 +388,7 @@ public class TestaRede {
 
                     // System.out.println("Jogada do Minimax: ");
                     if (flagMiniMax) {
-                        //System.out.println("Minimax Rate: " + minMaxRate);
+                        // System.out.println("Minimax Rate: " + minMaxRate);
                         mini.setMinMax(board);
                         melhor = mini.joga();
                         board[melhor.getLinha()][melhor.getColuna()] = 0;
@@ -405,9 +405,8 @@ public class TestaRede {
 
                         break;
                     }
-                  
+
                     setTabuleiro(board);
-              
 
                     double[] saidaRede = rn.propagacao(tabuleiro);
                     int indexMaior = getMaior(saidaRede);
@@ -496,7 +495,7 @@ public class TestaRede {
             System.out.print("|-----------------------------------------------|\n");
             System.out.print("| Opcao 1 - Treinar Rede Neural                 |\n");
             System.out.print("| Opcao 2 - Jogar                               |\n");
-            System.out.print("| Opcao 3 - Carregar Pesos                      |\n");
+            System.out.print("| Opcao 3 - Carregar Pesos Pre-Calculados       |\n");
             System.out.print("| Opcao 4 - Sair                                |\n");
             System.out.print("|-----------------------------------------------|\n");
             System.out.print("Selecione uma opcao: ");
@@ -564,9 +563,12 @@ public class TestaRede {
                         System.out.print(toString(board));
                         if (checkGameOver(board)) {
                             System.out.print("\n");
-                            System.out.print(toString(board));
+                            // System.out.print(toString(board));
                             System.out.print("\n");
-                            System.out.print(checkBoardState(board));
+                            if (checkBoardState(board) == 2)
+                                System.out.print("Empate!");
+                            else if (checkBoardState(board) == 0)
+                                System.out.print("Humano venceu!");
                             break;
                         }
 
@@ -577,12 +579,12 @@ public class TestaRede {
                         double[] saidaRede = rn.propagacao(tabuleiro);
                         int indexMaior = getMaior(saidaRede);
                         System.out.print("\n");
-                        System.out.println("Linha: " + indexMaior / 3);
-                        System.out.println("Coluna: " + indexMaior % 3);
+                        System.out.println("Linha escolhida pela rede: " + indexMaior / 3);
+                        System.out.println("Coluna escolhida pela rede: " + indexMaior % 3);
                         if (checkOccupied(indexMaior / 3, indexMaior % 3, board)) {
 
                             // System.out.println(board[indexMaior / 3][indexMaior % 3]);
-                            System.out.println("Jogada invalida");
+                            System.out.println("Jogada da rede em posicao ocupada");
                             break;
                         }
 
@@ -591,7 +593,9 @@ public class TestaRede {
                             System.out.print("\n");
                             System.out.print(toString(board));
                             System.out.print("\n");
-                            System.out.print(checkBoardState(board));
+                            if (checkBoardState(board) == 1)
+                                System.out.print("Rede venceu!");
+
                             break;
                         }
 
