@@ -20,7 +20,7 @@ public class TestaRede {
     private static int[][] tabuleiroVelha;
     private static Rede rn;
     private double[][] populacao;
-    private int populacaoSize = 30;
+    private int populacaoSize = 20;
     private static int totalIterations;
     private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.1, 0.9);
     private static double[] melhorPesos;
@@ -354,7 +354,7 @@ public class TestaRede {
             } else if (i == veryHard) {
                 System.out.println("Very Hard");
 
-                minMaxRate = 1;
+                minMaxRate = 0.3;
                 printRate = 10;
             }
 
