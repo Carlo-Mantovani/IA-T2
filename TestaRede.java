@@ -366,11 +366,11 @@ public class TestaRede {
                 board = resetBoard();
                 aptidao = 0;
                 turn = 0;
-                //if (random.nextDouble(0.001, 1) < minMaxRate) {
-                //    flagMiniMax = true;
-                //} else {
-                //    flagMiniMax = false;
-                //}
+                // if (random.nextDouble(0.001, 1) < minMaxRate) {
+                // flagMiniMax = true;
+                // } else {
+                // flagMiniMax = false;
+                // }
 
                 while (true) {
                     setTabuleiro(board);
@@ -444,7 +444,7 @@ public class TestaRede {
 
         Scanner kb = new Scanner(System.in);
         System.out.print("\nBem-vindo!\n");
-      
+
         // menu de opcoes
         while (true) {
             System.out.print("\n");
