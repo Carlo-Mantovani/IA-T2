@@ -22,7 +22,7 @@ public class TestaRede {
     private double[][] populacao;
     private int populacaoSize = 20;
     private static int totalIterations;
-    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.1, 0.9);
+    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.15, 0.9);
     private static double[] melhorPesos;
 
     public TestaRede() {
@@ -243,7 +243,7 @@ public class TestaRede {
             } else if (state == 2) {
                 return 50;
             } else if (state == -1) {
-                return 10 * turn;
+                return 10 * turn*2;
             }
         } else {
             if (state == 0) {
@@ -345,16 +345,16 @@ public class TestaRede {
             }
             if (i == medium) {
                 System.out.println("Medium");
-                minMaxRate = 0.005;
+                minMaxRate = 0.1;
                 printRate = 500;
             } else if (i == hard) {
                 System.out.println("Hard");
-                minMaxRate = 0.01;
+                minMaxRate = 0.3;
                 printRate = 100;
             } else if (i == veryHard) {
                 System.out.println("Very Hard");
 
-                minMaxRate = 0.3;
+                minMaxRate = 1;
                 printRate = 10;
             }
 
@@ -366,16 +366,19 @@ public class TestaRede {
                 board = resetBoard();
                 aptidao = 0;
                 turn = 0;
-                // if (random.nextDouble(0.001, 1) < minMaxRate) {
-                // flagMiniMax = true;
-                // } else {
-                // flagMiniMax = false;
-                // }
+                 if (random.nextDouble(0.001, 1) < minMaxRate) {
+                 flagMiniMax = true;
+                 } else {
+                 flagMiniMax = false;
+                 }
 
                 while (true) {
                     setTabuleiro(board);
 
-                    if (random.nextDouble(0.001, 1) < minMaxRate) {
+                    if (turn == 0){
+                        randomPlay(board);
+                    } else{
+                    if (flagMiniMax) {
                         mini.setMinMax(board);
                         melhor = mini.joga();
                         board[melhor.getLinha()][melhor.getColuna()] = 0;
@@ -385,6 +388,8 @@ public class TestaRede {
                     } else {
                         randomPlay(board);
                     }
+                }
+                    
                     turn++;
                     aptidao += getAptitude(board, false, turn);
 
@@ -399,7 +404,7 @@ public class TestaRede {
                     int indexMaior = getMaior(saidaRede);
 
                     if (checkOccupied(indexMaior / 3, indexMaior % 3, board)) {
-                        aptidao -= 15;
+                        aptidao -= 20;
 
                         break;
                     }
