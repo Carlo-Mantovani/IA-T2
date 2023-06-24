@@ -42,15 +42,16 @@ public class GeneticAlgorithm {
                 double[] child = getChild(parent1, parent2);
 
                 population[index] = child;
-                index++;
+                
             } else {
                 if (parent1[parent1.length - 1] > parent2[parent2.length - 1]) {
                     population[index] = parent1;
                 } else {
                     population[index] = parent2;
                 }
-                index++;
+               
             }
+            index++;
         }
         return population;
     }
@@ -82,14 +83,25 @@ public class GeneticAlgorithm {
     }
 
     private double[][] mutation(double[][] population) {
-
-        if (random.nextDouble() <= mutationRate) {
-
-            int randomLine = random.nextInt(1, population.length);
-            int randomColumn = random.nextInt(population[0].length - 1);
-            population[randomLine][randomColumn] = random.nextDouble(-1, 1);
-
+        int lowerBound = 0;
+        if (ELITISM) {
+            lowerBound = 1;
         }
+
+        for (int i = lowerBound; i < population.length; i++){
+            for (int j = 0; j < population[0].length - 1; j++){
+                if (random.nextDouble() <= mutationRate) {
+                    population[i][j] = random.nextDouble() * 2 - 1;
+                }
+            }
+        }
+        // if (random.nextDouble() <= mutationRate) {
+
+        //     int randomLine = random.nextInt(lowerBound, population.length);
+        //     int randomColumn = random.nextInt(population[0].length - 1);
+        //     population[randomLine][randomColumn] = random.nextDouble() * 2 - 1;
+
+        // }
 
         return population;
     }

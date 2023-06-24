@@ -20,7 +20,7 @@ public class TestaRede {
     private static int[][] tabuleiroVelha;
     private static Rede rn;
     private double[][] populacao;
-    private int populacaoSize = 10;
+    private int populacaoSize = 30;
     private static int totalIterations;
     private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.05, 0.9);
     private static double[] melhorPesos;
@@ -77,15 +77,11 @@ public class TestaRede {
                 cromossomo[i] = gera.nextDouble();
                 if (gera.nextBoolean())
                     cromossomo[i] = cromossomo[i] * -1;
-                // System.out.print(cromossomo[i] + " ");
             }
             cromossomo[cromossomo.length - 1] = 0;
             populacao[j] = cromossomo;
         }
-        // printPopulation(populacao);
-
-        // Setando os pesos na rede
-        // rn.setPesosNaRede(tabuleiro.length, cromossomo); //
+  
 
         gameLoop();
 
@@ -140,11 +136,6 @@ public class TestaRede {
             System.out.println();
 
         }
-
-        // System.out.println(population[0][population[0].length - 1]);
-
-        // System.out.println(population.length);
-        // System.out.println(population[0].length);
 
     }
 
@@ -235,7 +226,7 @@ public class TestaRede {
         return true;
     }
 
-    public static boolean blocksOpponentVictory(int[][] board, int line, int column) {
+    private static boolean blocksOpponentVictory(int[][] board, int line, int column) {
     int opponentMark = 0; // Assuming opponent's mark is represented by 0
     int numRows = board.length;
     int numColumns = board[0].length;
@@ -303,7 +294,7 @@ public class TestaRede {
     return false;
 }
 
-public boolean allowsPotentialVictory(int[][] board, int line, int column) {
+private boolean allowsPotentialVictory(int[][] board, int line, int column) {
     int neuralNetworkMark = 1; // Assuming neural network's mark is represented by 1
     int numRows = board.length;
     int numColumns = board[0].length;
@@ -398,7 +389,7 @@ public boolean allowsPotentialVictory(int[][] board, int line, int column) {
                 return -50;
 
             } else if (state == 2) {
-                return 200;
+                return 300;
             }
         }
         return 0;
@@ -482,7 +473,7 @@ public boolean allowsPotentialVictory(int[][] board, int line, int column) {
         int printRate = 1000;
         int medium = (totalIterations / 100) * 50;
         int hard = (totalIterations / 100) * 75;
-        int veryHard = (totalIterations / 1000) * 990;
+        int veryHard = (totalIterations / 1000) * 900;
         double minMaxRate = 0;
         for (int i = 0; i < totalIterations; i++) {
 
@@ -493,11 +484,11 @@ public boolean allowsPotentialVictory(int[][] board, int line, int column) {
             }
             if (i == medium) {
                 System.out.println("Medium");
-                minMaxRate = 0.1;
+                minMaxRate = 0.3;
                 printRate = 500;
             } else if (i == hard) {
                 System.out.println("Hard");
-                minMaxRate = 0.3;
+                minMaxRate = 0.5;
                 printRate = 100;
             } else if (i == veryHard) {
                 System.out.println("Very Hard");
@@ -558,7 +549,10 @@ public boolean allowsPotentialVictory(int[][] board, int line, int column) {
                         break;
                     }
                     if (blocksOpponentVictory(board, line, column) || allowsPotentialVictory(board, line, column)){
-                        aptidao += 100;
+                      
+                        aptidao += 200;
+                       
+
                     }
                     turn++;
                     board[indexMaior / 3][indexMaior % 3] = 1;
@@ -571,6 +565,7 @@ public boolean allowsPotentialVictory(int[][] board, int line, int column) {
 
                 }
                 populacao[j][indexAptidao] = aptidao;
+      
 
             }
 
