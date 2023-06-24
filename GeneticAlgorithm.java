@@ -82,14 +82,25 @@ public class GeneticAlgorithm {
     }
 
     private double[][] mutation(double[][] population) {
-
-        if (random.nextDouble() <= mutationRate) {
-
-            int randomLine = random.nextInt(1, population.length);
-            int randomColumn = random.nextInt(population[0].length - 1);
-            population[randomLine][randomColumn] = random.nextDouble(-1, 1);
-
+        int lowerBound = 0;
+        if (ELITISM) {
+            lowerBound = 1;
         }
+
+        for (int i = lowerBound; i < population.length; i++){
+            for (int j = 0; j < population[0].length - 1; j++){
+                if (random.nextDouble() <= mutationRate) {
+                    population[i][j] = random.nextDouble() * 2 - 1;
+                }
+            }
+        }
+        // if (random.nextDouble() <= mutationRate) {
+
+        //     int randomLine = random.nextInt(lowerBound, population.length);
+        //     int randomColumn = random.nextInt(population[0].length - 1);
+        //     population[randomLine][randomColumn] = random.nextDouble() * 2 - 1;
+
+        // }
 
         return population;
     }
@@ -106,6 +117,19 @@ public class GeneticAlgorithm {
         }
 
         return population[bestIndex];
+    }
+
+    public double getMutationRate() {
+        return mutationRate;
+    }
+    public void setMutationRate(double mutationRate) {
+        this.mutationRate = mutationRate;
+    }
+    public double getCrossOverRate() {
+        return crossOverRate;
+    }
+    public void setCrossOverRate(double crossOverRate) {
+        this.crossOverRate = crossOverRate;
     }
 
 }

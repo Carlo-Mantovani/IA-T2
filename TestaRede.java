@@ -22,7 +22,7 @@ public class TestaRede {
     private double[][] populacao;
     private int populacaoSize = 10;
     private static int totalIterations;
-    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.05, 0.9);
+    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.2, 0.9);
     private static double[] melhorPesos;
 
     public TestaRede() {
@@ -383,20 +383,24 @@ public boolean allowsPotentialVictory(int[][] board, int line, int column) {
 
 
 
-    private double getAptitude(int[][] board, boolean flagPlayer, int turn) {
+    private double getAptitude(int[][] board, boolean flagPlayer, int turn, boolean flagMM) {
+        int bonus = 0;
+        if (flagMM) {
+            bonus = 100;
+        }
         int state = checkBoardState(board);
         if (flagPlayer) {
             if (state == 1) {
-                return 1000/turn;
+                return (1000/turn) + bonus;
             } else if (state == -1) {
-                return 10 * turn;
+                return 10 * turn + bonus;
             }
         } else {
             if (state == 0) {
                 return -50;
 
             } else if (state == 2) {
-                return 200;
+                return 200 + bonus;
             }
         }
         return 0;
@@ -477,11 +481,11 @@ public boolean allowsPotentialVictory(int[][] board, int line, int column) {
         int indexAptidao = populacao[0].length - 1;
         Random random = new Random();
         int turn = 0;
-        int printRate = 10;
+        int printRate = 1000;
         int medium = (totalIterations / 100) * 50;
         int hard = (totalIterations / 100) * 75;
-        int veryHard = (totalIterations / 1000) * 999;
-        double minMaxRate = 1;
+        int veryHard = (totalIterations / 1000) * 900;
+        double minMaxRate = 0;
         for (int i = 0; i < totalIterations; i++) {
 
             if (i % printRate == 0) {
@@ -491,17 +495,23 @@ public boolean allowsPotentialVictory(int[][] board, int line, int column) {
             }
             if (i == medium) {
                 System.out.println("Medium");
-                //minMaxRate = 0.1;
-               // printRate = 500;
+                minMaxRate = 0.3;
+                printRate = 500;
+                ga.setMutationRate(ga.getMutationRate() * 0.5);
+                ga.setCrossOverRate(ga.getCrossOverRate() * 0.5);
             } else if (i == hard) {
                 System.out.println("Hard");
-               // minMaxRate = 0.3;
-                //printRate = 100;
+                minMaxRate = 0.5;
+                printRate = 100;
+                ga.setMutationRate(ga.getMutationRate() * 0.5);
+                ga.setCrossOverRate(ga.getCrossOverRate() * 0.5);
             } else if (i == veryHard) {
                 System.out.println("Very Hard");
 
-               // minMaxRate = 1;
-               // printRate = 10;
+                minMaxRate = 1;
+                printRate = 10;
+                ga.setMutationRate(ga.getMutationRate() * 0.5);
+                ga.setCrossOverRate(ga.getCrossOverRate() * 0.5);
             }
 
             boolean flagMiniMax = false;
@@ -537,7 +547,7 @@ public boolean allowsPotentialVictory(int[][] board, int line, int column) {
                 }
                     
                     turn++;
-                    aptidao += getAptitude(board, false, turn);
+                    aptidao += getAptitude(board, false, turn, flagMiniMax);
 
                     if (checkGameOver(board)) {
 
@@ -561,7 +571,7 @@ public boolean allowsPotentialVictory(int[][] board, int line, int column) {
                     }
                     turn++;
                     board[indexMaior / 3][indexMaior % 3] = 1;
-                    aptidao += getAptitude(board, true, turn);
+                    aptidao += getAptitude(board, true, turn, flagMiniMax);
 
                     if (checkGameOver(board)) {
 
