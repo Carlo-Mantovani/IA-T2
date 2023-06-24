@@ -20,9 +20,9 @@ public class TestaRede {
     private static int[][] tabuleiroVelha;
     private static Rede rn;
     private double[][] populacao;
-    private int populacaoSize = 20;
+    private int populacaoSize = 10;
     private static int totalIterations;
-    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.15, 0.9);
+    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.05, 0.9);
     private static double[] melhorPesos;
 
     public TestaRede() {
@@ -233,24 +233,170 @@ public class TestaRede {
         return true;
     }
 
+    public static boolean blocksOpponentVictory(int[][] board, int line, int column) {
+    int opponentMark = 0; // Assuming opponent's mark is represented by 0
+    int numRows = board.length;
+    int numColumns = board[0].length;
+
+    // Check if the play at the given line and column blocks a vertical victory
+    int opponentCount = 0;
+    for (int row = 0; row < numRows; row++) {
+        if (row == line) {
+            continue; // Skip the current play's line
+        }
+        if (board[row][column] == opponentMark) {
+            opponentCount++;
+        }
+    }
+    if (opponentCount == numRows - 1) {
+        return true;
+    }
+
+    // Check if the play at the given line and column blocks a horizontal victory
+    opponentCount = 0;
+    for (int col = 0; col < numColumns; col++) {
+        if (col == column) {
+            continue; // Skip the current play's column
+        }
+        if (board[line][col] == opponentMark) {
+            opponentCount++;
+        }
+    }
+    if (opponentCount == numColumns - 1) {
+        return true;
+    }
+
+    // Check if the play at the given line and column blocks a diagonal victory (if applicable)
+    if (line == column || line + column == numRows - 1) {
+        opponentCount = 0;
+        // Check the main diagonal
+        for (int i = 0; i < numRows; i++) {
+            if (i == line) {
+                continue; // Skip the current play's line
+            }
+            if (board[i][i] == opponentMark) {
+                opponentCount++;
+            }
+        }
+        if (opponentCount == numRows - 1) {
+            return true;
+        }
+
+        opponentCount = 0;
+        // Check the anti-diagonal
+        for (int i = 0; i < numRows; i++) {
+            if (i == line) {
+                continue; // Skip the current play's line
+            }
+            if (board[i][numRows - 1 - i] == opponentMark) {
+                opponentCount++;
+            }
+        }
+        if (opponentCount == numRows - 1) {
+            return true;
+        }
+    }
+
+    // No opponent victory is blocked by the current play
+    return false;
+}
+
+public boolean allowsPotentialVictory(int[][] board, int line, int column) {
+    int neuralNetworkMark = 1; // Assuming neural network's mark is represented by 1
+    int numRows = board.length;
+    int numColumns = board[0].length;
+
+    // Check if the play at the given line and column allows a potential vertical victory
+    int neuralNetworkCount = 0;
+    int freePositions = 0;
+    for (int row = 0; row < numRows; row++) {
+        if (row == line) {
+            continue; // Skip the current play's line
+        }
+        if (board[row][column] == neuralNetworkMark) {
+            neuralNetworkCount++;
+        } else if (board[row][column] == -1) { // Check for free positions
+            freePositions++;
+        }
+    }
+    if (neuralNetworkCount == numRows - 1 && freePositions > 0) {
+        return true;
+    }
+
+    // Check if the play at the given line and column allows a potential horizontal victory
+    neuralNetworkCount = 0;
+    freePositions = 0;
+    for (int col = 0; col < numColumns; col++) {
+        if (col == column) {
+            continue; // Skip the current play's column
+        }
+        if (board[line][col] == neuralNetworkMark) {
+            neuralNetworkCount++;
+        } else if (board[line][col] == -1) { // Check for free positions
+            freePositions++;
+        }
+    }
+    if (neuralNetworkCount == numColumns - 1 && freePositions > 0) {
+        return true;
+    }
+
+    // Check if the play at the given line and column allows a potential diagonal victory (if applicable)
+    if (line == column || line + column == numRows - 1) {
+        neuralNetworkCount = 0;
+        freePositions = 0;
+        // Check the main diagonal
+        for (int i = 0; i < numRows; i++) {
+            if (i == line) {
+                continue; // Skip the current play's line
+            }
+            if (board[i][i] == neuralNetworkMark) {
+                neuralNetworkCount++;
+            } else if (board[i][i] == -1) { // Check for free positions
+                freePositions++;
+            }
+        }
+        if (neuralNetworkCount == numRows - 1 && freePositions > 0) {
+            return true;
+        }
+
+        neuralNetworkCount = 0;
+        freePositions = 0;
+        // Check the anti-diagonal
+        for (int i = 0; i < numRows; i++) {
+            if (i == line) {
+                continue; // Skip the current play's line
+            }
+            if (board[i][numRows - 1 - i] == neuralNetworkMark) {
+                neuralNetworkCount++;
+            } else if (board[i][numRows - 1 - i] == -1) { // Check for free positions
+                freePositions++;
+            }
+        }
+        if (neuralNetworkCount == numRows - 1 && freePositions > 0) {
+            return true;
+        }
+    }
+
+    // The play at the given line and column does not allow a potential victory in the next round
+    return false;
+}
+
+
+
     private double getAptitude(int[][] board, boolean flagPlayer, int turn) {
         int state = checkBoardState(board);
         if (flagPlayer) {
-            if (state == 0) {
-                return -50;
-            } else if (state == 1) {
-                return 100;
-            } else if (state == 2) {
-                return 50;
+            if (state == 1) {
+                return 1000/turn;
             } else if (state == -1) {
-                return 10 * turn*2;
+                return 10 * turn;
             }
         } else {
             if (state == 0) {
                 return -50;
 
             } else if (state == 2) {
-                return 50;
+                return 200;
             }
         }
         return 0;
@@ -331,11 +477,11 @@ public class TestaRede {
         int indexAptidao = populacao[0].length - 1;
         Random random = new Random();
         int turn = 0;
-        int printRate = 1000;
+        int printRate = 10;
         int medium = (totalIterations / 100) * 50;
         int hard = (totalIterations / 100) * 75;
         int veryHard = (totalIterations / 1000) * 999;
-        double minMaxRate = 0;
+        double minMaxRate = 1;
         for (int i = 0; i < totalIterations; i++) {
 
             if (i % printRate == 0) {
@@ -345,17 +491,17 @@ public class TestaRede {
             }
             if (i == medium) {
                 System.out.println("Medium");
-                minMaxRate = 0.1;
-                printRate = 500;
+                //minMaxRate = 0.1;
+               // printRate = 500;
             } else if (i == hard) {
                 System.out.println("Hard");
-                minMaxRate = 0.3;
-                printRate = 100;
+               // minMaxRate = 0.3;
+                //printRate = 100;
             } else if (i == veryHard) {
                 System.out.println("Very Hard");
 
-                minMaxRate = 1;
-                printRate = 10;
+               // minMaxRate = 1;
+               // printRate = 10;
             }
 
             boolean flagMiniMax = false;
@@ -402,11 +548,16 @@ public class TestaRede {
 
                     double[] saidaRede = rn.propagacao(tabuleiro);
                     int indexMaior = getMaior(saidaRede);
+                    int line = indexMaior / 3;
+                    int column = indexMaior % 3;
 
-                    if (checkOccupied(indexMaior / 3, indexMaior % 3, board)) {
-                        aptidao -= 20;
+                    if (checkOccupied(line,column, board)) {
+                      
 
                         break;
+                    }
+                    if (blocksOpponentVictory(board, line, column) || allowsPotentialVictory(board, line, column)){
+                        aptidao += 100;
                     }
                     turn++;
                     board[indexMaior / 3][indexMaior % 3] = 1;
@@ -542,6 +693,7 @@ public class TestaRede {
                         System.out.print("\n");
                         System.out.println("Linha escolhida pela rede: " + indexMaior / 3);
                         System.out.println("Coluna escolhida pela rede: " + indexMaior % 3);
+                        
                         if (checkOccupied(indexMaior / 3, indexMaior % 3, board)) {
 
                             // System.out.println(board[indexMaior / 3][indexMaior % 3]);
