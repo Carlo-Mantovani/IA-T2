@@ -63,9 +63,11 @@ public class TestaRede {
 
         // Simulando um cromossomo da populacao do AG
         Random gera = new Random();
-        int pesosOculta = oculta + 1; // numero de pesos por neuronio da camada oculta
+        int pesosOculta1 = oculta + 1; // numero de pesos por neuronio da camada oculta
+        int pesosOculta2 = oculta + 1; // numero de pesos por neuronio da camada oculta
+        int pesosOculta3 = oculta + 1; // numero de pesos por neuronio da camada oculta
         int pesosSaida = saida + 1; // numero de pesos por neuronio da camada de saida
-        int totalPesos = pesosOculta * oculta + pesosSaida * saida;
+        int totalPesos = pesosOculta1 * oculta + pesosOculta2 * oculta + pesosOculta3*oculta + pesosSaida * saida;
         double[] cromossomo = new double[totalPesos + 1];
         populacao = new double[populacaoSize][totalPesos + 1];
 
@@ -477,11 +479,11 @@ public boolean allowsPotentialVictory(int[][] board, int line, int column) {
         int indexAptidao = populacao[0].length - 1;
         Random random = new Random();
         int turn = 0;
-        int printRate = 10;
+        int printRate = 1000;
         int medium = (totalIterations / 100) * 50;
         int hard = (totalIterations / 100) * 75;
-        int veryHard = (totalIterations / 1000) * 999;
-        double minMaxRate = 1;
+        int veryHard = (totalIterations / 1000) * 990;
+        double minMaxRate = 0;
         for (int i = 0; i < totalIterations; i++) {
 
             if (i % printRate == 0) {
@@ -491,17 +493,16 @@ public boolean allowsPotentialVictory(int[][] board, int line, int column) {
             }
             if (i == medium) {
                 System.out.println("Medium");
-                //minMaxRate = 0.1;
-               // printRate = 500;
+                minMaxRate = 0.1;
+                printRate = 500;
             } else if (i == hard) {
                 System.out.println("Hard");
-               // minMaxRate = 0.3;
-                //printRate = 100;
+                minMaxRate = 0.3;
+                printRate = 100;
             } else if (i == veryHard) {
                 System.out.println("Very Hard");
-
-               // minMaxRate = 1;
-               // printRate = 10;
+               minMaxRate = 1;
+               printRate = 10;
             }
 
             boolean flagMiniMax = false;
@@ -721,7 +722,7 @@ public boolean allowsPotentialVictory(int[][] board, int line, int column) {
                 case "3":
                     System.out.print("\n");
                     System.out.print("Carregando pesos...\n");
-                    melhorPesos = new double[181];
+                    melhorPesos = new double[361];
                     try {
                         File file = new File("bestweights.txt");
                         Scanner scanner = new Scanner(file);

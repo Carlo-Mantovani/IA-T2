@@ -6,7 +6,9 @@
  * @version 12/11/2020
  */
 public class Rede {
-    private Neuronio[] camadaOculta; // rede neural 9x9x9 -> topologia sugerida em aula
+    private Neuronio[] camadaOculta1; // rede neural 9x9x9 -> topologia sugerida em aula
+    private Neuronio[] camadaOculta2;
+    private Neuronio[] camadaOculta3;
     private Neuronio[] camadaSaida;
     private double[] saida; // valores de saída da propagacao
 
@@ -15,7 +17,9 @@ public class Rede {
             numNeuroniosOculta = 9;
             numNeuroniosSaida = 9;
         }
-        camadaOculta = new Neuronio[numNeuroniosOculta];
+        camadaOculta1 = new Neuronio[numNeuroniosOculta];
+        camadaOculta2 = new Neuronio[numNeuroniosOculta];
+        camadaOculta3 = new Neuronio[numNeuroniosOculta];
         camadaSaida = new Neuronio[numNeuroniosSaida];
     }
 
@@ -23,20 +27,45 @@ public class Rede {
         int k = 0;
         double[] tmp;
         // Setando os pesos da camada oculta
-        for (int i = 0; i < camadaOculta.length; i++) {
+        for (int i = 0; i < camadaOculta1.length; i++) {
             tmp = new double[numEntradas + 1]; // quantidade de pesos dos neurônios da camada oculta
             for (int j = 0; j < numEntradas + 1; j++) {
                 tmp[j] = pesos[k];
                 k++;
+                
             }
-            camadaOculta[i] = new Neuronio(tmp);
+            camadaOculta1[i] = new Neuronio(tmp);
+        }
+        // Setando os pesos da camada oculta2
+        for (int i = 0; i < camadaOculta2.length; i++) {
+            tmp = new double[camadaOculta1.length + 1]; // quantidade de pesos dos neurônios da camada oculta
+            for (int j = 0; j < camadaOculta1.length + 1; j++) {
+                tmp[j] = pesos[k];
+                k++;
+                
+
+            }
+            camadaOculta2[i] = new Neuronio(tmp);
+        }
+        // Setando os pesos da camada oculta3
+        for (int i = 0; i < camadaOculta3.length; i++) {
+            tmp = new double[camadaOculta2.length + 1]; // quantidade de pesos dos neurônios da camada oculta
+            for (int j = 0; j < camadaOculta2.length + 1; j++) {
+                tmp[j] = pesos[k];
+                k++;
+                
+
+            }
+            camadaOculta3[i] = new Neuronio(tmp);
         }
         // Setando os pesos da camada de saida
         for (int i = 0; i < camadaSaida.length; i++) {
-            tmp = new double[camadaOculta.length + 1]; // quantidade de pesos dos neurônios da camada oculta
-            for (int j = 0; j < camadaOculta.length + 1; j++) {
+            tmp = new double[camadaOculta3.length + 1]; // quantidade de pesos dos neurônios da camada oculta
+            for (int j = 0; j < camadaOculta3.length + 1; j++) {
                 tmp[j] = pesos[k];
                 k++;
+                
+
             }
             camadaSaida[i] = new Neuronio(tmp);
         }
@@ -46,27 +75,35 @@ public class Rede {
         if (x == null)
             return null;
 
-        double[] saidaOculta = new double[camadaOculta.length];
+        double[] saidaOculta1 = new double[camadaOculta1.length];
+        double[] saidaOculta2 = new double[camadaOculta2.length];
+        double[] saidaOculta3 = new double[camadaOculta3.length];
         saida = new double[camadaSaida.length];
-        for (int i = 0; i < camadaOculta.length; i++) {
-            saidaOculta[i] = camadaOculta[i].calculaY(x);
+        for (int i = 0; i < camadaOculta1.length; i++) {
+            saidaOculta1[i] = camadaOculta1[i].calculaY(x);
+        }
+        for (int i = 0; i < camadaOculta2.length; i++) {
+            saidaOculta2[i] = camadaOculta2[i].calculaY(saidaOculta1);
+        }
+        for (int i = 0; i < camadaOculta3.length; i++) {
+            saidaOculta3[i] = camadaOculta3[i].calculaY(saidaOculta2);
         }
         for (int i = 0; i < camadaSaida.length; i++) {
-            saida[i] = camadaSaida[i].calculaY(saidaOculta);
+            saida[i] = camadaSaida[i].calculaY(saidaOculta3);
         }
         return saida;
     }
 
     public String toString() {
         String msg = "Pesos da rede\n";
-        msg = msg + "Camada Oculta\n";
-        for (int i = 0; i < camadaOculta.length; i++) {
-            msg = msg + "Neuronio " + i + ": " + camadaOculta[i] + "\n";
-        }
-        msg = msg + "Camada Saida\n";
-        for (int i = 0; i < camadaSaida.length; i++) {
-            msg = msg + "Neuronio " + i + ": " + camadaSaida[i] + "\n";
-        }
+        // msg = msg + "Camada Oculta\n";
+        // for (int i = 0; i < camadaOculta.length; i++) {
+        //     msg = msg + "Neuronio " + i + ": " + camadaOculta[i] + "\n";
+        // }
+        // msg = msg + "Camada Saida\n";
+        // for (int i = 0; i < camadaSaida.length; i++) {
+        //     msg = msg + "Neuronio " + i + ": " + camadaSaida[i] + "\n";
+        // }
         return msg;
     }
 }
