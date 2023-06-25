@@ -20,9 +20,9 @@ public class TestaRede {
     private static int[][] tabuleiroVelha;
     private static Rede rn;
     private double[][] populacao;
-    private int populacaoSize = 30;
+    private int populacaoSize = 50;
     private static int totalIterations;
-    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.05, 0.9);
+    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.2, 1);
     private static double[] melhorPesos;
 
     public TestaRede() {
@@ -373,6 +373,12 @@ private boolean allowsPotentialVictory(int[][] board, int line, int column) {
     // The play at the given line and column does not allow a potential victory in the next round
     return false;
 }
+private boolean checkStrategicPosition(int[][] board, int line, int column) {
+    if ((line == 1 && column == 1) || (line == 0 && column == 0) || (line == 0 && column == 2) || (line == 2 && column == 0) || (line == 2 && column == 2)) {
+        return true;
+    }
+    return false;
+}
 
 
 
@@ -380,13 +386,13 @@ private boolean allowsPotentialVictory(int[][] board, int line, int column) {
         int state = checkBoardState(board);
         if (flagPlayer) {
             if (state == 1) {
-                return 1000/turn;
+                return 1200/turn;
             } else if (state == -1) {
-                return 10 * turn;
+                return 15 * turn;
             }
         } else {
             if (state == 0) {
-                return -50;
+                return -200;
 
             } else if (state == 2) {
                 return 300;
@@ -474,26 +480,33 @@ private boolean allowsPotentialVictory(int[][] board, int line, int column) {
         int medium = (totalIterations / 100) * 50;
         int hard = (totalIterations / 100) * 75;
         int veryHard = (totalIterations / 1000) * 900;
+        double[] bestPopulation = new double[populacao[0].length - 1];
         double minMaxRate = 0;
         for (int i = 0; i < totalIterations; i++) {
 
             if (i % printRate == 0) {
                 System.out.println();
                 System.out.println("Iteracao: " + i);
-                System.out.println("Melhor Aptidao anterior: " + getBestAptitude(populacao));
+                System.out.println("Melhor Aptidao da iteracao anterior(" + (i-1) + "): " + getBestAptitude(populacao));
             }
             if (i == medium) {
                 System.out.println("Medium");
                 minMaxRate = 0.3;
                 printRate = 500;
+                ga.setCrossOverRate(ga.getCrossOverRate() * 0.9);
+                ga.setMutationRate(ga.getMutationRate() * 0.5);
             } else if (i == hard) {
                 System.out.println("Hard");
                 minMaxRate = 0.5;
                 printRate = 100;
+                ga.setCrossOverRate(ga.getCrossOverRate() * 0.8);
+                ga.setMutationRate(ga.getMutationRate() * 0.5);
             } else if (i == veryHard) {
                 System.out.println("Very Hard");
                minMaxRate = 1;
                printRate = 10;
+               //ga.setCrossOverRate(ga.getCrossOverRate() * 0.7);
+               //ga.setMutationRate(ga.getMutationRate() * 0.5);
             }
 
             boolean flagMiniMax = false;
@@ -522,6 +535,7 @@ private boolean allowsPotentialVictory(int[][] board, int line, int column) {
                         board[melhor.getLinha()][melhor.getColuna()] = 0;
                         if ((checkBoardState(board)) == 2) {
                             System.out.println("Minimax Tie");
+                            //bestPopulation = populacao[j];
                         }
                     } else {
                         randomPlay(board);
@@ -548,14 +562,19 @@ private boolean allowsPotentialVictory(int[][] board, int line, int column) {
 
                         break;
                     }
-                    if (blocksOpponentVictory(board, line, column) || allowsPotentialVictory(board, line, column)){
+                  
+                    if (blocksOpponentVictory(board, line, column) ){
                       
+                        aptidao += 300;
+                       
+                    }
+                    if (allowsPotentialVictory(board, line, column)){
+
                         aptidao += 200;
                        
-
                     }
                     turn++;
-                    board[indexMaior / 3][indexMaior % 3] = 1;
+                    board[line][column] = 1;
                     aptidao += getAptitude(board, true, turn);
 
                     if (checkGameOver(board)) {

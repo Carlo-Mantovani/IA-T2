@@ -120,4 +120,22 @@ public class GeneticAlgorithm {
         return population[bestIndex];
     }
 
+    public double getMutationRate() {
+        return mutationRate;
+    }
+
+    public void setMutationRate(double mutationRate) {
+        this.mutationRate = mutationRate;
+    }
+
+    public double getCrossOverRate() {
+        return crossOverRate;
+    }
+
+    public void setCrossOverRate(double crossOverRate) {
+        this.crossOverRate = crossOverRate;
+    }
+
+    
+
 }
