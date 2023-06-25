@@ -3,15 +3,17 @@
  * Escreva a descrição da classe Rede aqui.
  * 
  * @author Silvia
- * @version 12/11/2020
+ * @adaptado Carlo Mantovani
+ * @version 25/06/2023
  */
 public class Rede {
-    private Neuronio[] camadaOculta1; // rede neural 9x9x9 -> topologia sugerida em aula
+    private Neuronio[] camadaOculta1; // rede neural 9x9x9x9x9
     private Neuronio[] camadaOculta2;
     private Neuronio[] camadaOculta3;
     private Neuronio[] camadaSaida;
     private double[] saida; // valores de saída da propagacao
 
+    // Construtor da rede neural
     public Rede(int numNeuroniosOculta, int numNeuroniosSaida) {
         if (numNeuroniosOculta <= 0 || numNeuroniosSaida <= 0) {
             numNeuroniosOculta = 9;
@@ -71,6 +73,7 @@ public class Rede {
         }
     }
 
+    // Propagação da rede neural
     public double[] propagacao(double[] x) {
         if (x == null)
             return null;

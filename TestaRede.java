@@ -3,6 +3,7 @@
  * Escreva a descrição da classe TestaRede aqui.
  * 
  * @author Silvia
+ * @adaptado por Carlo Mantovani
  * @version 12/11/2020
  */
 import java.io.BufferedWriter;
@@ -20,9 +21,10 @@ public class TestaRede {
     private static int[][] tabuleiroVelha;
     private static Rede rn;
     private double[][] populacao;
-    private int populacaoSize = 50;
+    private int populacaoSize = 30;
     private static int totalIterations;
-    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.2, 1);
+    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.1, 0.9);// elitismo, taxa de mutacao, taxa de crossover
+    private BoardMethods bm = new BoardMethods();// metodos para manipular o tabuleiro e obter aptidao
     private static double[] melhorPesos;
 
     public TestaRede() {
@@ -63,14 +65,14 @@ public class TestaRede {
 
         // Simulando um cromossomo da populacao do AG
         Random gera = new Random();
-        int pesosOculta1 = oculta + 1; // numero de pesos por neuronio da camada oculta
-        int pesosOculta2 = oculta + 1; // numero de pesos por neuronio da camada oculta
-        int pesosOculta3 = oculta + 1; // numero de pesos por neuronio da camada oculta
+        int pesosOculta1 = oculta + 1; // numero de pesos por neuronio da camada oculta 1
+        int pesosOculta2 = oculta + 1; // numero de pesos por neuronio da camada oculta 2
+        int pesosOculta3 = oculta + 1; // numero de pesos por neuronio da camada oculta 3
         int pesosSaida = saida + 1; // numero de pesos por neuronio da camada de saida
-        int totalPesos = pesosOculta1 * oculta + pesosOculta2 * oculta + pesosOculta3*oculta + pesosSaida * saida;
+        int totalPesos = pesosOculta1 * oculta + pesosOculta2 * oculta + pesosOculta3 * oculta + pesosSaida * saida;
         double[] cromossomo = new double[totalPesos + 1];
         populacao = new double[populacaoSize][totalPesos + 1];
-
+        // gerando pesos aleatorios
         for (int j = 0; j < populacaoSize; j++) {
             cromossomo = new double[totalPesos + 1];
             for (int i = 0; i < cromossomo.length - 1; i++) {
@@ -81,12 +83,12 @@ public class TestaRede {
             cromossomo[cromossomo.length - 1] = 0;
             populacao[j] = cromossomo;
         }
-  
 
-        gameLoop();
+        gameLoop();// loop do jogo
 
     }
 
+    // conversor de simbolos
     private static String symbolConverter(int symbol) {
         if (symbol == 1) {
             return "X";
@@ -97,6 +99,7 @@ public class TestaRede {
         }
     }
 
+    // decodificador de tabuleiro
     private static List<Integer> decodeBoard(int[][] tabuleiroVelha) {
 
         List<Integer> posicoes = new ArrayList<>();
@@ -109,6 +112,7 @@ public class TestaRede {
         return posicoes;
     }
 
+    // imprime tabuleiro
     private static String toString(int[][] tabuleiroVelha) {
         String result = "";
         List<Integer> posicoes = decodeBoard(tabuleiroVelha);
@@ -122,72 +126,6 @@ public class TestaRede {
         }
         result += "\n";
         return result;
-    }
-
-    private void printPopulation(double[][] population) {
-        for (int i = 0; i < population.length; i++) {
-            if (i == 1) {
-                System.out.println("Cromossomo " + i + ": ");
-                for (int j = 0; j < population[i].length; j++) {
-                    System.out.print(population[i][j] + " ");
-
-                }
-            }
-            System.out.println();
-
-        }
-
-    }
-
-    private static int checkBoardState(int[][] board) {
-        // Check rows
-        for (int line = 0; line < 3; line++) {
-            if (board[line][0] == board[line][1] && board[line][1] == board[line][2]) {
-                if (board[line][0] == 0) {
-                    return 0; // "O victory"
-                } else if (board[line][0] == 1) {
-                    return 1; // "X victory"
-                }
-            }
-        }
-
-        // Check columns
-        for (int col = 0; col < 3; col++) {
-            if (board[0][col] == board[1][col] && board[1][col] == board[2][col]) {
-                if (board[0][col] == 0) {
-                    return 0; // "O victory"
-                } else if (board[0][col] == 1) {
-                    return 1; // "X victory"
-                }
-            }
-        }
-
-        // Check diagonals
-        if ((board[0][0] == board[1][1] && board[1][1] == board[2][2]) ||
-                (board[0][2] == board[1][1] && board[1][1] == board[2][0])) {
-            if (board[1][1] == 0) {
-                return 0; // "O victory"
-            } else if (board[1][1] == 1) {
-                return 1; // "X victory"
-            }
-        }
-
-        // Check if the game is a draw
-        boolean draw = true;
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 3; col++) {
-                if (board[row][col] == -1) {
-                    draw = false;
-                    break;
-                }
-            }
-        }
-        if (draw) {
-            return 2; // "Not over, but it's a draw"
-        }
-
-        // Game is not over
-        return -1;
     }
 
     private static void setTabuleiro(int[][] tabuleiroVelha) {
@@ -212,221 +150,7 @@ public class TestaRede {
         return indexMaior;
     }
 
-    private static boolean checkOccupied(int linha, int coluna, int[][] tabuleiroVelha) {
-        if (tabuleiroVelha[linha][coluna] != -1) {
-            return true;
-        }
-        return false;
-    }
-
-    private static boolean checkGameOver(int[][] board) {
-        if (checkBoardState(board) == -1) {
-            return false;
-        }
-        return true;
-    }
-
-    private static boolean blocksOpponentVictory(int[][] board, int line, int column) {
-    int opponentMark = 0; // Assuming opponent's mark is represented by 0
-    int numRows = board.length;
-    int numColumns = board[0].length;
-
-    // Check if the play at the given line and column blocks a vertical victory
-    int opponentCount = 0;
-    for (int row = 0; row < numRows; row++) {
-        if (row == line) {
-            continue; // Skip the current play's line
-        }
-        if (board[row][column] == opponentMark) {
-            opponentCount++;
-        }
-    }
-    if (opponentCount == numRows - 1) {
-        return true;
-    }
-
-    // Check if the play at the given line and column blocks a horizontal victory
-    opponentCount = 0;
-    for (int col = 0; col < numColumns; col++) {
-        if (col == column) {
-            continue; // Skip the current play's column
-        }
-        if (board[line][col] == opponentMark) {
-            opponentCount++;
-        }
-    }
-    if (opponentCount == numColumns - 1) {
-        return true;
-    }
-
-    // Check if the play at the given line and column blocks a diagonal victory (if applicable)
-    if (line == column || line + column == numRows - 1) {
-        opponentCount = 0;
-        // Check the main diagonal
-        for (int i = 0; i < numRows; i++) {
-            if (i == line) {
-                continue; // Skip the current play's line
-            }
-            if (board[i][i] == opponentMark) {
-                opponentCount++;
-            }
-        }
-        if (opponentCount == numRows - 1) {
-            return true;
-        }
-
-        opponentCount = 0;
-        // Check the anti-diagonal
-        for (int i = 0; i < numRows; i++) {
-            if (i == line) {
-                continue; // Skip the current play's line
-            }
-            if (board[i][numRows - 1 - i] == opponentMark) {
-                opponentCount++;
-            }
-        }
-        if (opponentCount == numRows - 1) {
-            return true;
-        }
-    }
-
-    // No opponent victory is blocked by the current play
-    return false;
-}
-
-private boolean allowsPotentialVictory(int[][] board, int line, int column) {
-    int neuralNetworkMark = 1; // Assuming neural network's mark is represented by 1
-    int numRows = board.length;
-    int numColumns = board[0].length;
-
-    // Check if the play at the given line and column allows a potential vertical victory
-    int neuralNetworkCount = 0;
-    int freePositions = 0;
-    for (int row = 0; row < numRows; row++) {
-        if (row == line) {
-            continue; // Skip the current play's line
-        }
-        if (board[row][column] == neuralNetworkMark) {
-            neuralNetworkCount++;
-        } else if (board[row][column] == -1) { // Check for free positions
-            freePositions++;
-        }
-    }
-    if (neuralNetworkCount == numRows - 1 && freePositions > 0) {
-        return true;
-    }
-
-    // Check if the play at the given line and column allows a potential horizontal victory
-    neuralNetworkCount = 0;
-    freePositions = 0;
-    for (int col = 0; col < numColumns; col++) {
-        if (col == column) {
-            continue; // Skip the current play's column
-        }
-        if (board[line][col] == neuralNetworkMark) {
-            neuralNetworkCount++;
-        } else if (board[line][col] == -1) { // Check for free positions
-            freePositions++;
-        }
-    }
-    if (neuralNetworkCount == numColumns - 1 && freePositions > 0) {
-        return true;
-    }
-
-    // Check if the play at the given line and column allows a potential diagonal victory (if applicable)
-    if (line == column || line + column == numRows - 1) {
-        neuralNetworkCount = 0;
-        freePositions = 0;
-        // Check the main diagonal
-        for (int i = 0; i < numRows; i++) {
-            if (i == line) {
-                continue; // Skip the current play's line
-            }
-            if (board[i][i] == neuralNetworkMark) {
-                neuralNetworkCount++;
-            } else if (board[i][i] == -1) { // Check for free positions
-                freePositions++;
-            }
-        }
-        if (neuralNetworkCount == numRows - 1 && freePositions > 0) {
-            return true;
-        }
-
-        neuralNetworkCount = 0;
-        freePositions = 0;
-        // Check the anti-diagonal
-        for (int i = 0; i < numRows; i++) {
-            if (i == line) {
-                continue; // Skip the current play's line
-            }
-            if (board[i][numRows - 1 - i] == neuralNetworkMark) {
-                neuralNetworkCount++;
-            } else if (board[i][numRows - 1 - i] == -1) { // Check for free positions
-                freePositions++;
-            }
-        }
-        if (neuralNetworkCount == numRows - 1 && freePositions > 0) {
-            return true;
-        }
-    }
-
-    // The play at the given line and column does not allow a potential victory in the next round
-    return false;
-}
-private boolean checkStrategicPosition(int[][] board, int line, int column) {
-    if ((line == 1 && column == 1) || (line == 0 && column == 0) || (line == 0 && column == 2) || (line == 2 && column == 0) || (line == 2 && column == 2)) {
-        return true;
-    }
-    return false;
-}
-
-
-
-    private double getAptitude(int[][] board, boolean flagPlayer, int turn) {
-        int state = checkBoardState(board);
-        if (flagPlayer) {
-            if (state == 1) {
-                return 1200/turn;
-            } else if (state == -1) {
-                return 15 * turn;
-            }
-        } else {
-            if (state == 0) {
-                return -200;
-
-            } else if (state == 2) {
-                return 300;
-            }
-        }
-        return 0;
-    }
-
-    private static int[][] resetBoard() {
-        int[][] newBoard = new int[3][3];
-        for (int i = 0; i < newBoard.length; i++) {
-            for (int j = 0; j < newBoard.length; j++) {
-                newBoard[i][j] = -1;
-            }
-        }
-        return newBoard;
-    }
-
-    private int[][] randomPlay(int[][] board) {
-        int linha = 0;
-        int coluna = 0;
-        Random random = new Random();
-        while (true) {
-            linha = random.nextInt(3);
-            coluna = random.nextInt(3);
-            if (!checkOccupied(linha, coluna, board)) {
-                break;
-            }
-        }
-        board[linha][coluna] = 0;
-        return board;
-
-    }
-
+    // obtem a melhor aptidao da populacao
     private double getBestAptitude(double[][] populacao) {
         double melhorAptidao = 0;
         for (int i = 0; i < populacao.length; i++) {
@@ -437,6 +161,7 @@ private boolean checkStrategicPosition(int[][] board, int line, int column) {
         return melhorAptidao;
     }
 
+    // carrega pesos da rede a partir de um arquivo
     private static void startWithFile(double[] pesos) {
         tabuleiroVelha = new int[][] { { -1, -1, -1 }, // -1: celula livre 1: X 0: O
                 { -1, -1, -1 },
@@ -467,153 +192,157 @@ private boolean checkStrategicPosition(int[][] board, int line, int column) {
         rn.setPesosNaRede(tabuleiro.length, pesos); // seta os pesos da rede
     }
 
-    private void gameLoop() {
-        TestaMinimax mini = new TestaMinimax(tabuleiroVelha);
-        Sucessor melhor;
+    private static void printBoardPositions(int[][] board) {
+        for (int i = 0; i < board.length; i++) {
+            System.out.print("|");
+            for (int j = 0; j < board.length; j++) {
+                System.out.print(" " + (i * 3 + j) + " |");
+            }
+            System.out.print("\n");
+        }
+    }
 
-        int[][] board = resetBoard();
-        double aptidao = 0;
-        int indexAptidao = populacao[0].length - 1;
-        Random random = new Random();
-        int turn = 0;
-        int printRate = 1000;
-        int medium = (totalIterations / 100) * 50;
-        int hard = (totalIterations / 100) * 75;
-        int veryHard = (totalIterations / 1000) * 900;
-        double[] bestPopulation = new double[populacao[0].length - 1];
-        double minMaxRate = 0;
-        for (int i = 0; i < totalIterations; i++) {
+    // treinamento da rede
+    private void gameLoop() {
+        TestaMinimax mini = new TestaMinimax(tabuleiroVelha);// instancia o minimax
+        Sucessor melhor;// instancia o sucessor
+
+        int[][] board = BoardMethods.resetBoard();// reseta o tabuleiro
+        double aptidao = 0;// aptidao do cromossomo
+        int indexAptidao = populacao[0].length - 1;// indice da aptidao
+        Random random = new Random();// instancia um random
+        int turn = 0;// turno
+        int printRate = 1000;// taxa de print
+        int medium = (totalIterations / 100) * 50;// após 50% das iterações
+        int hard = (totalIterations / 100) * 75;// após 75% das iterações
+        int veryHard = (totalIterations / 1000) * 900;// após 90% das iterações
+        double minMaxRate = 0;// taxa de minimax
+
+        for (int i = 0; i < totalIterations; i++) {// para cada iteração
 
             if (i % printRate == 0) {
                 System.out.println();
                 System.out.println("Iteracao: " + i);
-                System.out.println("Melhor Aptidao da iteracao anterior(" + (i-1) + "): " + getBestAptitude(populacao));
+                System.out
+                        .println("Melhor Aptidao da iteracao anterior(" + (i - 1) + "): " + getBestAptitude(populacao));
             }
-            if (i == medium) {
+            // altera a taxa de minimax e as taxas de crossover e mutação após 50%, 75% e
+            // 90% das iterações
+            if (i == medium) {// após 50% das iterações
                 System.out.println("Medium");
                 minMaxRate = 0.3;
                 printRate = 500;
                 ga.setCrossOverRate(ga.getCrossOverRate() * 0.9);
                 ga.setMutationRate(ga.getMutationRate() * 0.5);
-            } else if (i == hard) {
+            } else if (i == hard) {// após 75% das iterações
                 System.out.println("Hard");
                 minMaxRate = 0.5;
                 printRate = 100;
                 ga.setCrossOverRate(ga.getCrossOverRate() * 0.8);
                 ga.setMutationRate(ga.getMutationRate() * 0.5);
-            } else if (i == veryHard) {
+            } else if (i == veryHard) {// após 90% das iterações
                 System.out.println("Very Hard");
-               minMaxRate = 1;
-               printRate = 10;
-               //ga.setCrossOverRate(ga.getCrossOverRate() * 0.7);
-               //ga.setMutationRate(ga.getMutationRate() * 0.5);
+                minMaxRate = 1;
+                printRate = 10;
+                // ga.setCrossOverRate(ga.getCrossOverRate() * 0.7);
+                // ga.setMutationRate(ga.getMutationRate() * 0.5);
             }
 
-            boolean flagMiniMax = false;
+            boolean flagMiniMax = false;// flag para minimax
 
-            for (int j = 0; j < populacao.length; j++) {
+            for (int j = 0; j < populacao.length; j++) {// para cada cromossomo da população
 
-                rn.setPesosNaRede(tabuleiro.length, populacao[j]);
-                board = resetBoard();
-                aptidao = 0;
-                turn = 0;
-                 if (random.nextDouble(0.001, 1) < minMaxRate) {
-                 flagMiniMax = true;
-                 } else {
-                 flagMiniMax = false;
-                 }
-
-                while (true) {
-                    setTabuleiro(board);
-
-                    if (turn == 0){
-                        randomPlay(board);
-                    } else{
-                    if (flagMiniMax) {
-                        mini.setMinMax(board);
-                        melhor = mini.joga();
-                        board[melhor.getLinha()][melhor.getColuna()] = 0;
-                        if ((checkBoardState(board)) == 2) {
-                            System.out.println("Minimax Tie");
-                            //bestPopulation = populacao[j];
-                        }
-                    } else {
-                        randomPlay(board);
-                    }
+                rn.setPesosNaRede(tabuleiro.length, populacao[j]);// seta os pesos da rede
+                board = BoardMethods.resetBoard();// reseta o tabuleiro
+                aptidao = 0;// reseta a aptidao
+                turn = 0;// reseta o turno
+                if (random.nextDouble(0.001, 1) < minMaxRate) {// se a taxa de minimax for atingida
+                    flagMiniMax = true;
+                } else {
+                    flagMiniMax = false;
                 }
-                    
-                    turn++;
-                    aptidao += getAptitude(board, false, turn);
+                while (true) {// enquanto o jogo não acabar
+                    setTabuleiro(board);// seta o tabuleiro
 
-                    if (checkGameOver(board)) {
+                    if (turn == 0) {// se for o primeiro turno, joga aleatoriamente
+                        bm.randomPlay(board);
+                    } else {
+                        if (flagMiniMax) {// se a taxa de minimax for atingida, joga com minimax
+                            mini.setMinMax(board);
+                            melhor = mini.joga();
+                            board[melhor.getLinha()][melhor.getColuna()] = 0;
+                            if ((BoardMethods.checkBoardState(board)) == 2) {
+                                System.out.println("Minimax Tie");
+                                // bestPopulation = populacao[j];
+                            }
+                        } else {// senao, joga com a rede neural
+                            bm.randomPlay(board);
+                        }
+                    }
+                    turn++;// incrementa o turno
+                    aptidao += bm.getAptitude(board, false, turn);// calcula a aptidao
 
+                    if (BoardMethods.checkGameOver(board)) {// se o jogo acabou, acaba o jogo
                         break;
                     }
 
-                    setTabuleiro(board);
+                    setTabuleiro(board);// seta o tabuleiro
 
-                    double[] saidaRede = rn.propagacao(tabuleiro);
+                    double[] saidaRede = rn.propagacao(tabuleiro);// calcula a saida da rede
                     int indexMaior = getMaior(saidaRede);
                     int line = indexMaior / 3;
                     int column = indexMaior % 3;
 
-                    if (checkOccupied(line,column, board)) {
-                      
-
+                    if (BoardMethods.checkOccupied(line, column, board)) {// se a posição estiver ocupada, acaba o jogo
                         break;
                     }
-                  
-                    if (blocksOpponentVictory(board, line, column) ){
-                      
+
+                    if (bm.blocksOpponentVictory(board, line, column)) {// se bloquear a vitoria do oponente, ganha
+                                                                        // pontos
                         aptidao += 300;
-                       
                     }
-                    if (allowsPotentialVictory(board, line, column)){
-
+                    if (bm.allowsPotentialVictory(board, line, column)) {// se permitir uma vitoria, perde pontos
                         aptidao += 200;
-                       
                     }
-                    turn++;
-                    board[line][column] = 1;
-                    aptidao += getAptitude(board, true, turn);
+                    turn++;// incrementa o turno
+                    board[line][column] = 1;// joga na posicao
+                    aptidao += bm.getAptitude(board, true, turn);// calcula a aptidao
 
-                    if (checkGameOver(board)) {
-
+                    if (BoardMethods.checkGameOver(board)) {// verifica se o jogo acabou
                         break;
                     }
 
                 }
-                populacao[j][indexAptidao] = aptidao;
-      
+                populacao[j][indexAptidao] = aptidao;// seta a aptidao do cromossomo
 
             }
 
-            if (i == totalIterations - 1) {
+            if (i == totalIterations - 1) {// se for a ultima iteracao, acaba o jogo
                 break;
             }
-            populacao = ga.defineNewPopulation(populacao);
+            populacao = ga.defineNewPopulation(populacao);// define a nova população
 
         }
-        int bestIndex = 0;
-        for (int i = 0; i < populacao.length; i++) {
+        int bestIndex = 0;// indice do melhor cromossomo
+        for (int i = 0; i < populacao.length; i++) {// verifica qual o melhor cromossomo
             if (populacao[i][populacao[0].length - 1] > populacao[bestIndex][populacao[0].length - 1]) {
                 bestIndex = i;
             }
         }
-        melhorPesos = populacao[bestIndex];
+        melhorPesos = populacao[bestIndex];// salva os pesos do melhor cromossomo
         System.out.println("Melhor Aptidao: " + populacao[bestIndex][populacao[0].length - 1]);
         System.out.println("Melhor Pesos: ");
         for (int i = 0; i < melhorPesos.length; i++) {
             System.out.print("Peso " + i + ":");
             System.out.println(melhorPesos[i]);
         }
-        // System.out.println("Aptidoes acima de 5: " + highCount);
 
     }
 
+    // menu de opcoes
     public static void main(String args[]) {
 
-        Scanner kb = new Scanner(System.in);
+        Scanner kb = new Scanner(System.in);// leitor de teclado
         System.out.print("\nBem-vindo!\n");
 
         // menu de opcoes
@@ -631,16 +360,16 @@ private boolean checkStrategicPosition(int[][] board, int line, int column) {
 
             switch (opt) {
 
-                case "1":
+                case "1":// treina a rede neural
 
                     System.out.print("\n");
                     System.out.print("Quantidade de iteracoes: ");
                     totalIterations = kb.nextInt();
                     kb.nextLine();
-
-                    long startTime = System.currentTimeMillis();
+                    long startTime = System.currentTimeMillis();// calcula o tempo de execucao
                     TestaRede teste = new TestaRede();
 
+                    // salva os pesos em um arquivo
                     try {
                         FileWriter fileWriter = new FileWriter("pesos.txt");
                         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
@@ -655,73 +384,72 @@ private boolean checkStrategicPosition(int[][] board, int line, int column) {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    long endTime = System.currentTimeMillis();
-
+                    long endTime = System.currentTimeMillis();// calcula o tempo de execucao
                     long elapsedTime = endTime - startTime;
                     double elapsedTimeInSeconds = (double) elapsedTime / 1000.0;
 
-                    System.out.println("Method execution time: " + elapsedTimeInSeconds + " seconds");
-
+                    System.out.println("Method execution time: " + elapsedTimeInSeconds + " seconds");// imprime o tempo
+                                                                                                      // de execucao
                     break;
 
-                case "2":
-                    rn.setPesosNaRede(tabuleiro.length, melhorPesos);
-                    boolean jogar = true;
-                    int[][] board = resetBoard();
+                case "2":// joga com a rede neural
+                    rn.setPesosNaRede(tabuleiro.length, melhorPesos);// seta os pesos na rede
+                    boolean jogar = true;// variavel que controla o loop do jogo
+                    int[][] board = BoardMethods.resetBoard();// reseta o tabuleiro
                     while (jogar) {
 
                         System.out.print("\n");
-                        printBoardPositions(board);
+                        printBoardPositions(board);// imprime as posicoes do tabuleiro
                         System.out.print("\n");
 
                         System.out.print("\n");
-                        System.out.print(toString(board));
+                        System.out.print(toString(board));// imprime o tabuleiro
 
                         System.out.print("\n");
-                        System.out.print("Jogador 1, escolha uma posicao: ");
+                        System.out.print("Jogador 1, escolha uma posicao: ");// jogador 1 (humano) joga
                         int position = kb.nextInt();
                         kb.nextLine();
-                        if (checkOccupied(position / 3, position % 3, board)) {
+                        if (BoardMethods.checkOccupied(position / 3, position % 3, board)) {// verifica se a posicao
+                                                                                            // esta ocupada
                             System.out.print("\n");
                             System.out.print("Posicao ocupada!\n");
                             break;
                         }
-                        board[position / 3][position % 3] = 0;
+                        board[position / 3][position % 3] = 0;// joga na posicao escolhida
                         System.out.print(toString(board));
-                        if (checkGameOver(board)) {
+                        if (BoardMethods.checkGameOver(board)) {// verifica se o jogo acabou
                             System.out.print("\n");
                             // System.out.print(toString(board));
                             System.out.print("\n");
-                            if (checkBoardState(board) == 2)
+                            if (BoardMethods.checkBoardState(board) == 2)
                                 System.out.print("Empate!");
-                            else if (checkBoardState(board) == 0)
+                            else if (BoardMethods.checkBoardState(board) == 0)
                                 System.out.print("Humano venceu!");
                             break;
                         }
 
                         System.out.print("\n");
-                        System.out.print("Jogada da Rede: ");
+                        System.out.print("Jogada da Rede: ");// jogada da rede neural
 
-                        setTabuleiro(board);
-                        double[] saidaRede = rn.propagacao(tabuleiro);
+                        setTabuleiro(board);// seta o tabuleiro do jogo
+                        double[] saidaRede = rn.propagacao(tabuleiro);// calcula a saida da rede neural
                         int indexMaior = getMaior(saidaRede);
                         System.out.print("\n");
                         System.out.println("Linha escolhida pela rede: " + indexMaior / 3);
                         System.out.println("Coluna escolhida pela rede: " + indexMaior % 3);
-                        
-                        if (checkOccupied(indexMaior / 3, indexMaior % 3, board)) {
 
-                            // System.out.println(board[indexMaior / 3][indexMaior % 3]);
+                        if (BoardMethods.checkOccupied(indexMaior / 3, indexMaior % 3, board)) {// verifica se a posicao
+                                                                                                // esta ocupada
                             System.out.println("Jogada da rede em posicao ocupada");
                             break;
                         }
 
-                        board[indexMaior / 3][indexMaior % 3] = 1;
-                        if (checkGameOver(board)) {
+                        board[indexMaior / 3][indexMaior % 3] = 1;// joga na posicao escolhida
+                        if (BoardMethods.checkGameOver(board)) {// verifica se o jogo acabou
                             System.out.print("\n");
                             System.out.print(toString(board));
                             System.out.print("\n");
-                            if (checkBoardState(board) == 1)
+                            if (BoardMethods.checkBoardState(board) == 1)
                                 System.out.print("Rede venceu!");
 
                             break;
@@ -733,7 +461,7 @@ private boolean checkStrategicPosition(int[][] board, int line, int column) {
 
                     break;
 
-                case "3":
+                case "3":// carrega os pesos pre-calculados
                     System.out.print("\n");
                     System.out.print("Carregando pesos...\n");
                     melhorPesos = new double[361];
@@ -753,29 +481,18 @@ private boolean checkStrategicPosition(int[][] board, int line, int column) {
                     startWithFile(melhorPesos);
                     break;
 
-                case "4":
+                case "4":// sai do programa
                     System.out.print("\n");
                     System.out.print("Obrigado por jogar!\n");
                     System.exit(0);
                     kb.close();
                     break;
 
-                default:
+                default:// opcao invalida
                     System.out.print("\n");
                     System.out.print("Opcao invalida!\n");
                     break;
-
             }
-        }
-    }
-
-    private static void printBoardPositions(int[][] board) {
-        for (int i = 0; i < board.length; i++) {
-            System.out.print("|");
-            for (int j = 0; j < board.length; j++) {
-                System.out.print(" " + (i * 3 + j) + " |");
-            }
-            System.out.print("\n");
         }
     }
 }
