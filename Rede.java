@@ -34,7 +34,7 @@ public class Rede {
             for (int j = 0; j < numEntradas + 1; j++) {
                 tmp[j] = pesos[k];
                 k++;
-                
+
             }
             camadaOculta1[i] = new Neuronio(tmp);
         }
@@ -44,7 +44,6 @@ public class Rede {
             for (int j = 0; j < camadaOculta1.length + 1; j++) {
                 tmp[j] = pesos[k];
                 k++;
-                
 
             }
             camadaOculta2[i] = new Neuronio(tmp);
@@ -55,7 +54,6 @@ public class Rede {
             for (int j = 0; j < camadaOculta2.length + 1; j++) {
                 tmp[j] = pesos[k];
                 k++;
-                
 
             }
             camadaOculta3[i] = new Neuronio(tmp);
@@ -66,7 +64,6 @@ public class Rede {
             for (int j = 0; j < camadaOculta3.length + 1; j++) {
                 tmp[j] = pesos[k];
                 k++;
-                
 
             }
             camadaSaida[i] = new Neuronio(tmp);
@@ -101,11 +98,11 @@ public class Rede {
         String msg = "Pesos da rede\n";
         // msg = msg + "Camada Oculta\n";
         // for (int i = 0; i < camadaOculta.length; i++) {
-        //     msg = msg + "Neuronio " + i + ": " + camadaOculta[i] + "\n";
+        // msg = msg + "Neuronio " + i + ": " + camadaOculta[i] + "\n";
         // }
         // msg = msg + "Camada Saida\n";
         // for (int i = 0; i < camadaSaida.length; i++) {
-        //     msg = msg + "Neuronio " + i + ": " + camadaSaida[i] + "\n";
+        // msg = msg + "Neuronio " + i + ": " + camadaSaida[i] + "\n";
         // }
         return msg;
     }
