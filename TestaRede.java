@@ -23,9 +23,11 @@ public class TestaRede {
     private double[][] populacao;
     private int populacaoSize = 30;
     private static int totalIterations;
-    private GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.1, 0.9);// elitismo, taxa de mutacao, taxa de crossover
+    private static GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.05, 0.9);// elitismo, taxa de mutacao, taxa de
+                                                                               // crossover
     private BoardMethods bm = new BoardMethods();// metodos para manipular o tabuleiro e obter aptidao
     private static double[] melhorPesos;
+    private static int min_max_tie_count = 0;
 
     public TestaRede() {
         // ------------------------ EXEMPLO DE TABULEIRO
@@ -36,14 +38,14 @@ public class TestaRede {
                 { -1, -1, -1 } };
 
         // Exibe tabuleiro
-        System.out.println("\f\nTabuleiro inicial: ");
-        for (int i = 0; i < tabuleiroVelha.length; i++) {
-            for (int j = 0; j < tabuleiroVelha.length; j++) {
-                System.out.print(tabuleiroVelha[i][j] + " \t");
-            }
-            System.out.println();
-        }
-        System.out.println(toString(tabuleiroVelha));
+        // System.out.println("\f\nTabuleiro inicial: ");
+        // for (int i = 0; i < tabuleiroVelha.length; i++) {
+        // for (int j = 0; j < tabuleiroVelha.length; j++) {
+        // System.out.print(tabuleiroVelha[i][j] + " \t");
+        // }
+        // System.out.println();
+        // }
+        // System.out.println(toString(tabuleiroVelha));
 
         // tabuleiro de teste - conversao de matriz para vetor
         tabuleiro = new double[tabuleiroVelha.length * tabuleiroVelha.length];
@@ -217,35 +219,50 @@ public class TestaRede {
         int hard = (totalIterations / 100) * 75;// após 75% das iterações
         int veryHard = (totalIterations / 1000) * 900;// após 90% das iterações
         double minMaxRate = 0;// taxa de minimax
+        int free_Position_Bonus = 300;// bonus de posição livre
+        int win_Bonus = 10;// bonus de vitória
+        int draw_Bonus = 10;// bonus de empate
 
         for (int i = 0; i < totalIterations; i++) {// para cada iteração
 
-            if (i % printRate == 0) {
-                System.out.println();
-                System.out.println("Iteracao: " + i);
-                System.out
-                        .println("Melhor Aptidao da iteracao anterior(" + (i - 1) + "): " + getBestAptitude(populacao));
-            }
+            // if (i % printRate == 0) {
+            // System.out.println();
+            // System.out.println("Iteracao: " + i);
+            // System.out
+            // .println("Melhor Aptidao da iteracao anterior(" + (i - 1) + "): " +
+            // getBestAptitude(populacao));
+            // }
             // altera a taxa de minimax e as taxas de crossover e mutação após 50%, 75% e
             // 90% das iterações
             if (i == medium) {// após 50% das iterações
-                System.out.println("Medium");
+                // System.out.println("Medium");
                 minMaxRate = 0.3;
                 printRate = 500;
                 ga.setCrossOverRate(ga.getCrossOverRate() * 0.9);
-                ga.setMutationRate(ga.getMutationRate() * 0.5);
+                ga.setMutationRate(ga.getMutationRate() / 2);
+                free_Position_Bonus /= 2;
+                win_Bonus *= 5;
+                draw_Bonus *= 5;
             } else if (i == hard) {// após 75% das iterações
-                System.out.println("Hard");
+                // System.out.println("Hard");
                 minMaxRate = 0.5;
                 printRate = 100;
-                ga.setCrossOverRate(ga.getCrossOverRate() * 0.8);
-                ga.setMutationRate(ga.getMutationRate() * 0.5);
+                ga.setCrossOverRate(ga.getCrossOverRate() * 0.9);
+                ga.setMutationRate(ga.getMutationRate() / 2);
+                free_Position_Bonus /= 2;
+                win_Bonus *= 5;
+                draw_Bonus *= 5;
+
             } else if (i == veryHard) {// após 90% das iterações
-                System.out.println("Very Hard");
+                // System.out.println("Very Hard");
                 minMaxRate = 1;
                 printRate = 10;
-                // ga.setCrossOverRate(ga.getCrossOverRate() * 0.7);
-                // ga.setMutationRate(ga.getMutationRate() * 0.5);
+                //ga.setCrossOverRate(ga.getCrossOverRate() * 0.9);
+                ga.setMutationRate(ga.getMutationRate() / 2);
+                free_Position_Bonus /= 2;
+                win_Bonus *= 5;
+                draw_Bonus *= 5;
+
             }
 
             boolean flagMiniMax = false;// flag para minimax
@@ -264,23 +281,27 @@ public class TestaRede {
                 while (true) {// enquanto o jogo não acabar
                     setTabuleiro(board);// seta o tabuleiro
 
-                    if (turn == 0) {// se for o primeiro turno, joga aleatoriamente
-                        bm.randomPlay(board);
-                    } else {
-                        if (flagMiniMax) {// se a taxa de minimax for atingida, joga com minimax
+                    if (flagMiniMax) {// se a taxa de minimax for atingida, joga com minimax
+                        if (turn == 0) {// se for o primeiro turno, joga aleatoriamente
+                            bm.randomPlay(board);
+                        } else {
                             mini.setMinMax(board);
                             melhor = mini.joga();
                             board[melhor.getLinha()][melhor.getColuna()] = 0;
                             if ((BoardMethods.checkBoardState(board)) == 2) {
-                                System.out.println("Minimax Tie");
+                                // System.out.println("Minimax Tie");
+                                min_max_tie_count++;
                                 // bestPopulation = populacao[j];
                             }
-                        } else {// senao, joga com a rede neural
-                            bm.randomPlay(board);
                         }
+                    } else {// senao, joga com a rede neural
+                        bm.randomPlay(board);
                     }
+
                     turn++;// incrementa o turno
-                    aptidao += bm.getAptitude(board, false, turn);// calcula a aptidao
+                    aptidao += bm.getAptitude(board, false, turn, free_Position_Bonus, win_Bonus, draw_Bonus);// calcula
+                                                                                                              // a
+                    // aptidao
 
                     if (BoardMethods.checkGameOver(board)) {// se o jogo acabou, acaba o jogo
                         break;
@@ -299,14 +320,16 @@ public class TestaRede {
 
                     if (bm.blocksOpponentVictory(board, line, column)) {// se bloquear a vitoria do oponente, ganha
                                                                         // pontos
-                        aptidao += 300;
+                        aptidao += 350;
                     }
                     if (bm.allowsPotentialVictory(board, line, column)) {// se permitir uma vitoria, perde pontos
                         aptidao += 200;
                     }
                     turn++;// incrementa o turno
                     board[line][column] = 1;// joga na posicao
-                    aptidao += bm.getAptitude(board, true, turn);// calcula a aptidao
+                    aptidao += bm.getAptitude(board, true, turn, free_Position_Bonus, win_Bonus, draw_Bonus);// calcula
+                                                                                                             // a
+                    // aptidao
 
                     if (BoardMethods.checkGameOver(board)) {// verifica se o jogo acabou
                         break;
@@ -330,11 +353,12 @@ public class TestaRede {
             }
         }
         melhorPesos = populacao[bestIndex];// salva os pesos do melhor cromossomo
-        System.out.println("Melhor Aptidao: " + populacao[bestIndex][populacao[0].length - 1]);
-        System.out.println("Melhor Pesos: ");
+        // System.out.println("Melhor Aptidao: " +
+        // populacao[bestIndex][populacao[0].length - 1]);
+        // System.out.println("Melhor Pesos: ");
         for (int i = 0; i < melhorPesos.length; i++) {
-            System.out.print("Peso " + i + ":");
-            System.out.println(melhorPesos[i]);
+            // System.out.print("Peso " + i + ":");
+            // System.out.println(melhorPesos[i]);
         }
 
     }
@@ -353,6 +377,7 @@ public class TestaRede {
             System.out.print("| Opcao 2 - Jogar                               |\n");
             System.out.print("| Opcao 3 - Carregar Pesos Pre-Calculados       |\n");
             System.out.print("| Opcao 4 - Sair                                |\n");
+            System.out.print("|-5 Testes--------------------------------------|\n");
             System.out.print("|-----------------------------------------------|\n");
             System.out.print("Selecione uma opcao: ");
 
@@ -486,6 +511,25 @@ public class TestaRede {
                     System.out.print("Obrigado por jogar!\n");
                     System.exit(0);
                     kb.close();
+                    break;
+                case "5":
+                    double mutation_rate = 0.05;
+                    double crossover_rate = 1;
+                    totalIterations = 10000;
+
+                    for (int i = 0; i < 10; i++) {
+                        System.out.println("Teste " + i);
+                        //mutation_rate += 0.01;
+                        crossover_rate -= 0.02;
+                        min_max_tie_count = 0;
+                        ga.setMutationRate(mutation_rate);
+                        ga.setCrossOverRate(crossover_rate);
+                        System.out.println("Taxa de Crossover " + crossover_rate);
+                        System.out.println("Taxa de Mutacao " + mutation_rate);
+                        TestaRede testing = new TestaRede();
+                        System.out.println("Frequencia de Empate Minimax " + min_max_tie_count);
+                        System.out.println("");
+                    }
                     break;
 
                 default:// opcao invalida

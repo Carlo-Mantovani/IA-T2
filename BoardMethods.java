@@ -2,20 +2,20 @@ import java.util.Random;
 
 public class BoardMethods {
     // calcula a aptidão do tabuleiro
-    public double getAptitude(int[][] board, boolean flagPlayer, int turn) {
+    public double getAptitude(int[][] board, boolean flagPlayer, int turn, int free_Position_Bonus, int win_Bonus, int draw_Bonus) {
         int state = checkBoardState(board);
         if (flagPlayer) {// se for a rede
             if (state == 1) {// se a rede ganhou
-                return 1200 / turn;
+                return 1200 / turn + win_Bonus;
             } else if (state == -1) {// se a rede jogou em posicao livre
-                return 15 * turn;
+                return 15 * turn + free_Position_Bonus;
             }
         } else {
             if (state == 0) {// se a rede perdeu
                 return -200;
 
             } else if (state == 2) {// se a rede empatou
-                return 300;
+                return 300 + draw_Bonus;
             }
         }
         return 0;
