@@ -6,16 +6,16 @@ public class BoardMethods {
         int state = checkBoardState(board);
         if (flagPlayer) {// se for a rede
             if (state == 1) {// se a rede ganhou
-                return 1200 / turn + win_Bonus;
+                return 120 / turn + win_Bonus;
             } else if (state == -1) {// se a rede jogou em posicao livre
-                return 15 * turn + free_Position_Bonus;
+                return 2 * turn + free_Position_Bonus;
             }
         } else {
             if (state == 0) {// se a rede perdeu
-                return -200;
+                return -20;
 
             } else if (state == 2) {// se a rede empatou
-                return 300 + draw_Bonus;
+                return 30 + draw_Bonus;
             }
         }
         return 0;

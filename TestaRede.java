@@ -21,13 +21,14 @@ public class TestaRede {
     private static int[][] tabuleiroVelha;
     private static Rede rn;
     private double[][] populacao;
-    private int populacaoSize = 30;
+    private int populacaoSize = 20;
     private static int totalIterations;
-    private static GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.05, 0.9);// elitismo, taxa de mutacao, taxa de
+    private static GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.01, 0.86);// elitismo, taxa de mutacao, taxa de
                                                                                // crossover
     private BoardMethods bm = new BoardMethods();// metodos para manipular o tabuleiro e obter aptidao
     private static double[] melhorPesos;
     private static int min_max_tie_count = 0;
+    private static int occuppied_count = 0;
 
     public TestaRede() {
         // ------------------------ EXEMPLO DE TABULEIRO
@@ -217,11 +218,11 @@ public class TestaRede {
         int printRate = 1000;// taxa de print
         int medium = (totalIterations / 100) * 50;// após 50% das iterações
         int hard = (totalIterations / 100) * 75;// após 75% das iterações
-        int veryHard = (totalIterations / 1000) * 900;// após 90% das iterações
+        int veryHard = (totalIterations / 1000) * 990;// após 90% das iterações
         double minMaxRate = 0;// taxa de minimax
-        int free_Position_Bonus = 300;// bonus de posição livre
-        int win_Bonus = 10;// bonus de vitória
-        int draw_Bonus = 10;// bonus de empate
+        int free_Position_Bonus = 90;// bonus de posição livre
+        int win_Bonus = 8;// bonus de vitória
+        int draw_Bonus = 5;// bonus de empate
 
         for (int i = 0; i < totalIterations; i++) {// para cada iteração
 
@@ -238,7 +239,7 @@ public class TestaRede {
                 // System.out.println("Medium");
                 minMaxRate = 0.3;
                 printRate = 500;
-                ga.setCrossOverRate(ga.getCrossOverRate() * 0.9);
+              //  ga.setCrossOverRate(ga.getCrossOverRate() * 0.8);
                 ga.setMutationRate(ga.getMutationRate() / 2);
                 free_Position_Bonus /= 2;
                 win_Bonus *= 5;
@@ -247,7 +248,7 @@ public class TestaRede {
                 // System.out.println("Hard");
                 minMaxRate = 0.5;
                 printRate = 100;
-                ga.setCrossOverRate(ga.getCrossOverRate() * 0.9);
+               // ga.setCrossOverRate(ga.getCrossOverRate() * 0.7);
                 ga.setMutationRate(ga.getMutationRate() / 2);
                 free_Position_Bonus /= 2;
                 win_Bonus *= 5;
@@ -315,15 +316,16 @@ public class TestaRede {
                     int column = indexMaior % 3;
 
                     if (BoardMethods.checkOccupied(line, column, board)) {// se a posição estiver ocupada, acaba o jogo
+                        occuppied_count++;
                         break;
                     }
 
                     if (bm.blocksOpponentVictory(board, line, column)) {// se bloquear a vitoria do oponente, ganha
                                                                         // pontos
-                        aptidao += 350;
+                        aptidao += 50;
                     }
-                    if (bm.allowsPotentialVictory(board, line, column)) {// se permitir uma vitoria, perde pontos
-                        aptidao += 200;
+                    if (bm.allowsPotentialVictory(board, line, column)) {// se permitir uma potencial vitoria, ganha pontos
+                        aptidao += 20;
                     }
                     turn++;// incrementa o turno
                     board[line][column] = 1;// joga na posicao
@@ -360,6 +362,8 @@ public class TestaRede {
             // System.out.print("Peso " + i + ":");
             // System.out.println(melhorPesos[i]);
         }
+        System.out.println("Frequencia de empates: " + min_max_tie_count);
+        System.out.println("Frequencia de posicoes ocupadas: " + occuppied_count);
 
     }
 
@@ -513,21 +517,37 @@ public class TestaRede {
                     kb.close();
                     break;
                 case "5":
-                    double mutation_rate = 0.05;
-                    double crossover_rate = 1;
-                    totalIterations = 10000;
+                    double mutation_rate = 0.5;
+                    double crossover_rate = 0.85;
+                    totalIterations = 5000;
 
                     for (int i = 0; i < 10; i++) {
                         System.out.println("Teste " + i);
-                        //mutation_rate += 0.01;
-                        crossover_rate -= 0.02;
                         min_max_tie_count = 0;
+                        occuppied_count = 0;
                         ga.setMutationRate(mutation_rate);
-                        ga.setCrossOverRate(crossover_rate);
+                       // ga.setCrossOverRate(crossover_rate);
                         System.out.println("Taxa de Crossover " + crossover_rate);
+                        //crossover_rate -= 0.05;
                         System.out.println("Taxa de Mutacao " + mutation_rate);
+                        //mutation_rate += 0.01;
                         TestaRede testing = new TestaRede();
                         System.out.println("Frequencia de Empate Minimax " + min_max_tie_count);
+                        System.out.println("Frequencia de Ocuppied " + occuppied_count);
+                             try {
+                        FileWriter fileWriter = new FileWriter("pesos.txt");
+                        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
+                        for (double value : melhorPesos) {
+                            bufferedWriter.write(Double.toString(value));
+                            bufferedWriter.newLine();
+                        }
+
+                        bufferedWriter.close();
+                        //System.out.println("Array has been written to the file.");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                         System.out.println("");
                     }
                     break;
