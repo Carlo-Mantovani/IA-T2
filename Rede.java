@@ -94,16 +94,5 @@ public class Rede {
         return saida;
     }
 
-    public String toString() {
-        String msg = "Pesos da rede\n";
-        // msg = msg + "Camada Oculta\n";
-        // for (int i = 0; i < camadaOculta.length; i++) {
-        // msg = msg + "Neuronio " + i + ": " + camadaOculta[i] + "\n";
-        // }
-        // msg = msg + "Camada Saida\n";
-        // for (int i = 0; i < camadaSaida.length; i++) {
-        // msg = msg + "Neuronio " + i + ": " + camadaSaida[i] + "\n";
-        // }
-        return msg;
-    }
+   
 }

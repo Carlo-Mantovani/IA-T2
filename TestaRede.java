@@ -24,7 +24,7 @@ public class TestaRede {
     private int populacaoSize = 20;
     private static int totalIterations;
     private static GeneticAlgorithm ga = new GeneticAlgorithm(true, 0.01, 0.86);// elitismo, taxa de mutacao, taxa de
-                                                                               // crossover
+                                                                                // crossover
     private BoardMethods bm = new BoardMethods();// metodos para manipular o tabuleiro e obter aptidao
     private static double[] melhorPesos;
     private static int min_max_tie_count = 0;
@@ -33,22 +33,12 @@ public class TestaRede {
     public TestaRede() {
         // ------------------------ EXEMPLO DE TABULEIRO
         // ------------------------------------------
-        // tabuleiro do jogo da velha - Exemplo de teste
+        // tabuleiro do jogo da velha - Inicializacao
         tabuleiroVelha = new int[][] { { -1, -1, -1 }, // -1: celula livre 1: X 0: O
                 { -1, -1, -1 },
                 { -1, -1, -1 } };
 
-        // Exibe tabuleiro
-        // System.out.println("\f\nTabuleiro inicial: ");
-        // for (int i = 0; i < tabuleiroVelha.length; i++) {
-        // for (int j = 0; j < tabuleiroVelha.length; j++) {
-        // System.out.print(tabuleiroVelha[i][j] + " \t");
-        // }
-        // System.out.println();
-        // }
-        // System.out.println(toString(tabuleiroVelha));
-
-        // tabuleiro de teste - conversao de matriz para vetor
+        // conversao de matriz para vetor
         tabuleiro = new double[tabuleiroVelha.length * tabuleiroVelha.length];
         int k = 0;
         for (int i = 0; i < tabuleiroVelha.length; i++) {
@@ -131,6 +121,7 @@ public class TestaRede {
         return result;
     }
 
+    // seta o tabuleiro
     private static void setTabuleiro(int[][] tabuleiroVelha) {
         int k = 0;
         for (int i = 0; i < tabuleiroVelha.length; i++) {
@@ -141,6 +132,7 @@ public class TestaRede {
         }
     }
 
+    // obtem o indice do maior valor de saida da rede
     private static int getMaior(double[] saidaRede) {
         int indexMaior = 0;
         for (int i = 0; i < saidaRede.length; i++) {
@@ -195,6 +187,7 @@ public class TestaRede {
         rn.setPesosNaRede(tabuleiro.length, pesos); // seta os pesos da rede
     }
 
+    // imprime posicoes do tabuleiro
     private static void printBoardPositions(int[][] board) {
         for (int i = 0; i < board.length; i++) {
             System.out.print("|");
@@ -216,49 +209,47 @@ public class TestaRede {
         Random random = new Random();// instancia um random
         int turn = 0;// turno
         int printRate = 1000;// taxa de print
-        int medium = (totalIterations / 100) * 50;// após 50% das iterações
-        int hard = (totalIterations / 100) * 75;// após 75% das iterações
-        int veryHard = (totalIterations / 1000) * 990;// após 90% das iterações
+        int medium = (totalIterations / 100) * 30;// após 30% das iterações
+        int hard = (totalIterations / 100) * 50;// após 50% das iterações
+        int veryHard = (totalIterations / 100) * 75;// após 75% das iterações
         double minMaxRate = 0;// taxa de minimax
         int free_Position_Bonus = 90;// bonus de posição livre
-        int win_Bonus = 8;// bonus de vitória
+        int win_Bonus = 8;// bonus de vitoria
         int draw_Bonus = 5;// bonus de empate
 
-        for (int i = 0; i < totalIterations; i++) {// para cada iteração
+        for (int i = 0; i < totalIterations; i++) {// para cada iteracao
 
-            // if (i % printRate == 0) {
-            // System.out.println();
-            // System.out.println("Iteracao: " + i);
-            // System.out
-            // .println("Melhor Aptidao da iteracao anterior(" + (i - 1) + "): " +
-            // getBestAptitude(populacao));
-            // }
+            if (i % printRate == 0) {
+                System.out.println();
+                System.out.println("Iteracao: " + i);
+                System.out
+                        .println("Melhor Aptidao da iteracao anterior(" + (i - 1) + "): " +
+                                getBestAptitude(populacao));
+            }
             // altera a taxa de minimax e as taxas de crossover e mutação após 50%, 75% e
             // 90% das iterações
             if (i == medium) {// após 50% das iterações
-                // System.out.println("Medium");
-                minMaxRate = 0.3;
-                printRate = 500;
-              //  ga.setCrossOverRate(ga.getCrossOverRate() * 0.8);
+                System.out.println("Medium");
+                minMaxRate = 0.3;// aumenta a taxa de minimax
+                printRate = 500;// diminui a taxa de print
+
                 ga.setMutationRate(ga.getMutationRate() / 2);
-                free_Position_Bonus /= 2;
-                win_Bonus *= 5;
-                draw_Bonus *= 5;
+                free_Position_Bonus /= 2;// diminui o bonus de posição livre
+                win_Bonus *= 5;// aumenta o bonus de vitoria
+                draw_Bonus *= 5;// aumenta o bonus de empate
             } else if (i == hard) {// após 75% das iterações
-                // System.out.println("Hard");
+                System.out.println("Hard");
                 minMaxRate = 0.5;
                 printRate = 100;
-               // ga.setCrossOverRate(ga.getCrossOverRate() * 0.7);
                 ga.setMutationRate(ga.getMutationRate() / 2);
                 free_Position_Bonus /= 2;
                 win_Bonus *= 5;
                 draw_Bonus *= 5;
 
             } else if (i == veryHard) {// após 90% das iterações
-                // System.out.println("Very Hard");
+                System.out.println("Very Hard");
                 minMaxRate = 1;
                 printRate = 10;
-                //ga.setCrossOverRate(ga.getCrossOverRate() * 0.9);
                 ga.setMutationRate(ga.getMutationRate() / 2);
                 free_Position_Bonus /= 2;
                 win_Bonus *= 5;
@@ -290,9 +281,7 @@ public class TestaRede {
                             melhor = mini.joga();
                             board[melhor.getLinha()][melhor.getColuna()] = 0;
                             if ((BoardMethods.checkBoardState(board)) == 2) {
-                                // System.out.println("Minimax Tie");
                                 min_max_tie_count++;
-                                // bestPopulation = populacao[j];
                             }
                         }
                     } else {// senao, joga com a rede neural
@@ -324,7 +313,8 @@ public class TestaRede {
                                                                         // pontos
                         aptidao += 50;
                     }
-                    if (bm.allowsPotentialVictory(board, line, column)) {// se permitir uma potencial vitoria, ganha pontos
+                    if (bm.allowsPotentialVictory(board, line, column)) {// se permitir uma potencial vitoria, ganha
+                                                                         // pontos
                         aptidao += 20;
                     }
                     turn++;// incrementa o turno
@@ -355,12 +345,12 @@ public class TestaRede {
             }
         }
         melhorPesos = populacao[bestIndex];// salva os pesos do melhor cromossomo
-        // System.out.println("Melhor Aptidao: " +
-        // populacao[bestIndex][populacao[0].length - 1]);
-        // System.out.println("Melhor Pesos: ");
+        System.out.println("Melhor Aptidao: " +
+                populacao[bestIndex][populacao[0].length - 1]);
+        System.out.println("Melhor Pesos: ");
         for (int i = 0; i < melhorPesos.length; i++) {
-            // System.out.print("Peso " + i + ":");
-            // System.out.println(melhorPesos[i]);
+            System.out.print("Peso " + i + ":");
+            System.out.println(melhorPesos[i]);
         }
         System.out.println("Frequencia de empates: " + min_max_tie_count);
         System.out.println("Frequencia de posicoes ocupadas: " + occuppied_count);
@@ -381,7 +371,6 @@ public class TestaRede {
             System.out.print("| Opcao 2 - Jogar                               |\n");
             System.out.print("| Opcao 3 - Carregar Pesos Pre-Calculados       |\n");
             System.out.print("| Opcao 4 - Sair                                |\n");
-            System.out.print("|-5 Testes--------------------------------------|\n");
             System.out.print("|-----------------------------------------------|\n");
             System.out.print("Selecione uma opcao: ");
 
@@ -484,8 +473,6 @@ public class TestaRede {
                             break;
                         }
 
-                        // System.out.print(toString(board));
-
                     }
 
                     break;
@@ -515,41 +502,6 @@ public class TestaRede {
                     System.out.print("Obrigado por jogar!\n");
                     System.exit(0);
                     kb.close();
-                    break;
-                case "5":
-                    double mutation_rate = 0.5;
-                    double crossover_rate = 0.85;
-                    totalIterations = 5000;
-
-                    for (int i = 0; i < 10; i++) {
-                        System.out.println("Teste " + i);
-                        min_max_tie_count = 0;
-                        occuppied_count = 0;
-                        ga.setMutationRate(mutation_rate);
-                       // ga.setCrossOverRate(crossover_rate);
-                        System.out.println("Taxa de Crossover " + crossover_rate);
-                        //crossover_rate -= 0.05;
-                        System.out.println("Taxa de Mutacao " + mutation_rate);
-                        //mutation_rate += 0.01;
-                        TestaRede testing = new TestaRede();
-                        System.out.println("Frequencia de Empate Minimax " + min_max_tie_count);
-                        System.out.println("Frequencia de Ocuppied " + occuppied_count);
-                             try {
-                        FileWriter fileWriter = new FileWriter("pesos.txt");
-                        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-
-                        for (double value : melhorPesos) {
-                            bufferedWriter.write(Double.toString(value));
-                            bufferedWriter.newLine();
-                        }
-
-                        bufferedWriter.close();
-                        //System.out.println("Array has been written to the file.");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                        System.out.println("");
-                    }
                     break;
 
                 default:// opcao invalida
